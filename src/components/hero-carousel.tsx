@@ -31,6 +31,8 @@ export type HeroSlide = {
   href: string;
   meta: string;
   image: string | null;
+  /** Generated category thumbnail, shown as a tilted card when there is no image. */
+  thumb?: string | null;
   /** Course covers fanned out as the art when there is no category image. */
   covers?: string[];
   initial: string;
@@ -112,6 +114,21 @@ export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
                     alt=""
                     className="hero-art absolute inset-0 h-full w-full object-contain"
                   />
+                ) : s.thumb ? (
+                  <div className="hero-art absolute inset-0 flex items-center justify-center">
+                    <div className="relative aspect-[5/3] w-[74%] max-w-[560px] lg:w-[78%]">
+                      <img
+                        src={s.thumb}
+                        alt=""
+                        className="absolute inset-0 h-full w-full translate-x-[7%] translate-y-[-9%] rotate-[7deg] scale-[.9] rounded-[22px] object-cover opacity-40 blur-[1px]"
+                      />
+                      <img
+                        src={s.thumb}
+                        alt=""
+                        className="absolute inset-0 h-full w-full -rotate-[5deg] rounded-[22px] border border-white/15 object-cover shadow-[0_40px_80px_rgba(0,0,0,.5)]"
+                      />
+                    </div>
+                  </div>
                 ) : s.covers?.length ? (
                   <div className="hero-art absolute inset-0 flex items-center justify-center">
                     <div className="relative aspect-[4/3] h-[56%]">
@@ -261,7 +278,7 @@ export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
                 className="flex min-w-[112px] cursor-pointer flex-col items-start gap-[3px] rounded-md border px-[13px] py-[9px] text-start transition-colors duration-300"
                 style={
                   i === index
-                    ? { borderColor: "rgba(124,92,255,.55)", background: "rgba(124,92,255,.16)" }
+                    ? { borderColor: s.tone.chipBorder, background: s.tone.chipBg }
                     : { borderColor: "rgba(255,255,255,.1)", background: "rgba(255,255,255,.04)" }
                 }
               >
@@ -277,8 +294,8 @@ export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
             <span className="block h-0.5 w-16 overflow-hidden rounded-sm bg-white/15">
               <span
                 key={`${current.id}-${index}`}
-                className="hero-progress block h-full w-full rounded-sm bg-[var(--color-brand-500)]"
-                style={{ "--hero-duration": `${DURATION_MS}ms` } as React.CSSProperties}
+                className="hero-progress block h-full w-full rounded-sm"
+                style={{ "--hero-duration": `${DURATION_MS}ms`, background: current.tone.dot } as React.CSSProperties}
               />
             </span>
           </div>
@@ -299,7 +316,7 @@ export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
                 className="h-1.5 cursor-pointer rounded-sm p-0 transition-[width,background-color] duration-300"
                 style={{
                   width: i === index ? 28 : 10,
-                  background: i === index ? "var(--color-brand-500)" : "rgba(255,255,255,.24)",
+                  background: i === index ? current.tone.dot : "rgba(255,255,255,.24)",
                 }}
               />
             ))}
