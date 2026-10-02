@@ -1,6 +1,6 @@
 # Courses store
 
-A simple storefront for selling your courses — styled after [odigix.com](https://odigix.com/en).
+A simple storefront for selling your courses — a warm off-white desk with a white app shell, an orange accent and Inter Tight type.
 
 - **Landing page = course list**, filterable by category, plus a category grid
 - **Sign up / Sign in** (Supabase Auth, email + password)
@@ -55,4 +55,4 @@ Deploy to Vercel (or any Node host) with the same environment variables, and set
 ## Customize
 
 - Brand name, tagline, contact email: `src/lib/site.ts`
-- Colours: CSS variables at the top of `src/app/globals.css`
+- Colours, radii and shadows: design tokens at the top of `src/app/globals.css` (component classes such as `.card`, `.btn-primary`, `.pill` live further down)

@@ -6,32 +6,32 @@ export function CourseCard({ course }: { course: Course }) {
   return (
     <Link
       href={`/courses/${course.slug}`}
-      className="group flex flex-col overflow-hidden rounded-2xl border border-line bg-surface transition hover:-translate-y-0.5 hover:shadow-lg"
+      className="card group flex flex-col transition duration-200 hover:-translate-y-0.5 hover:shadow-(--shadow-card-hover)"
     >
-      <div className="relative aspect-[4/3] overflow-hidden">
-        <CourseCover course={course} className="transition duration-300 group-hover:scale-105" />
-        {course.category && (
-          <span className="absolute left-3 top-3 hidden rounded-full sm:inline bg-surface/90 px-2.5 py-1 text-[11px] font-medium text-ink backdrop-blur">
-            {course.category.name}
-          </span>
-        )}
+      <div className="relative aspect-[4/3] overflow-hidden border-b border-line-3">
+        <CourseCover course={course} className="transition duration-300 group-hover:scale-[1.03]" />
         {course.is_featured && (
-          <span className="absolute right-3 top-3 rounded-full bg-accent px-2.5 py-1 text-[11px] font-semibold text-accent-ink">
+          <span className="tag tag-amber absolute left-3 top-3 shadow-[0_1px_2px_rgba(16,24,40,.08)]">
             Featured
           </span>
         )}
       </div>
-      <div className="flex flex-1 flex-col gap-2 p-3 sm:p-4">
-        <h3 className="line-clamp-2 text-sm font-semibold leading-snug sm:text-base">{course.name}</h3>
+      <div className="flex flex-1 flex-col gap-1.5 p-3.5 sm:p-4">
+        {course.category && <span className="eyebrow truncate">{course.category.name}</span>}
+        <h3 className="line-clamp-2 text-[15px] font-semibold leading-snug tracking-[-.01em]">
+          {course.name}
+        </h3>
         {course.description && (
-          <p className="line-clamp-2 hidden text-sm text-muted sm:block">{course.description}</p>
+          <p className="line-clamp-2 hidden text-[13px] leading-[1.5] text-muted sm:block">
+            {course.description}
+          </p>
         )}
-        <div className="mt-auto flex items-center justify-between pt-2">
-          <span className="whitespace-nowrap font-bold sm:text-lg">{formatPrice(course.price)}</span>
-          <span className="hidden items-center gap-1 text-xs font-medium text-muted sm:flex">
-            <span className="size-1.5 rounded-full bg-accent" /> Instant access
-          </span>
-        </div>
+      </div>
+      <div className="card-foot flex items-center justify-between gap-2 !px-3.5 sm:!px-4">
+        <span className="whitespace-nowrap text-[15px] font-bold tracking-[-.02em]">
+          {formatPrice(course.price)}
+        </span>
+        <span className="tag tag-green hidden sm:inline-flex">Instant access</span>
       </div>
     </Link>
   );
@@ -40,13 +40,13 @@ export function CourseCard({ course }: { course: Course }) {
 export function CourseGrid({ courses }: { courses: Course[] }) {
   if (courses.length === 0) {
     return (
-      <div className="rounded-2xl border border-dashed border-line bg-surface p-12 text-center text-muted">
+      <div className="rounded-[16px] border border-dashed border-line bg-surface p-12 text-center text-[14.5px] text-muted">
         No courses here yet.
       </div>
     );
   }
   return (
-    <div className="grid grid-cols-2 gap-3 sm:gap-5 md:grid-cols-3 lg:grid-cols-4">
+    <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 xl:grid-cols-4">
       {courses.map((c) => (
         <CourseCard key={c.id} course={c} />
       ))}

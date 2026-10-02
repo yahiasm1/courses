@@ -1,12 +1,14 @@
 import type { Metadata } from "next";
-import { Rubik } from "next/font/google";
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
-import { MobileNav } from "@/components/mobile-nav";
+import { IBM_Plex_Mono, Inter_Tight } from "next/font/google";
 import { SITE_NAME } from "@/lib/site";
 import "./globals.css";
 
-const rubik = Rubik({ variable: "--font-rubik", subsets: ["latin", "arabic"] });
+const interTight = Inter_Tight({ subsets: ["latin"], variable: "--font-inter-tight" });
+const plexMono = IBM_Plex_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500"],
+  variable: "--font-plex-mono",
+});
 
 export const metadata: Metadata = {
   title: { default: `${SITE_NAME} — Online courses`, template: `%s · ${SITE_NAME}` },
@@ -16,13 +18,8 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
-      <body className={`${rubik.variable} font-sans antialiased`}>
-        <Header />
-        <main className="mx-auto min-h-[70vh] w-full max-w-7xl px-4 pb-24 sm:px-6 md:pb-12">
-          {children}
-        </main>
-        <Footer />
-        <MobileNav />
+      <body className={`${interTight.variable} ${plexMono.variable} font-sans antialiased`}>
+        {children}
       </body>
     </html>
   );

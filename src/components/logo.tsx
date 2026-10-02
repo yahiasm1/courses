@@ -1,16 +1,14 @@
 import Link from "next/link";
+import { Icon } from "@/components/icons";
 import { SITE_NAME } from "@/lib/site";
 
-export function Logo() {
+export function Logo({ size = 34 }: { size?: number }) {
   return (
-    <Link href="/" className="flex items-center gap-2 text-lg font-bold tracking-tight text-brand">
-      <span className="grid size-8 place-items-center rounded-lg bg-accent text-accent-ink">
-        <svg viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="2.2">
-          <path d="M4 6.5 12 3l8 3.5-8 3.5L4 6.5Z" strokeLinejoin="round" />
-          <path d="M7 8.5V14c0 1.5 2.5 3 5 3s5-1.5 5-3V8.5" strokeLinejoin="round" />
-        </svg>
+    <Link href="/" className="flex items-center gap-[10px] text-ink">
+      <span className="brand-mark" style={{ width: size, height: size }}>
+        <Icon name="cap" size={Math.round(size * 0.58)} strokeWidth={2} />
       </span>
-      {SITE_NAME}
+      <span className="text-[16px] font-bold tracking-[-.02em]">{SITE_NAME}</span>
     </Link>
   );
 }
