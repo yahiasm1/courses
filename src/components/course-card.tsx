@@ -8,7 +8,7 @@ export function CourseCard({ course }: { course: Course }) {
       href={`/courses/${course.slug}`}
       className="card card-hover group flex flex-col"
     >
-      <div className="relative aspect-[4/3] overflow-hidden border-b border-line-3">
+      <div className="relative aspect-video overflow-hidden border-b border-line-3">
         <CourseCover course={course} className="transition duration-300 group-hover:scale-[1.03]" />
         {course.is_featured && (
           <span className="tag tag-amber absolute left-3 top-3 backdrop-blur">

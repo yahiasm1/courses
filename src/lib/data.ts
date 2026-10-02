@@ -16,7 +16,7 @@ export const getCategories = cache(async (): Promise<Category[]> => {
   return data ?? [];
 });
 
-/** Every published course, featured first. */
+/** Every published course: featured first, then in table order (first row added = first shown). */
 export const getCourses = cache(async (): Promise<Course[]> => {
   const supabase = await createClient();
   const { data } = await supabase
@@ -24,7 +24,7 @@ export const getCourses = cache(async (): Promise<Course[]> => {
     .select(COURSE_COLUMNS)
     .eq("is_published", true)
     .order("is_featured", { ascending: false })
-    .order("created_at", { ascending: false });
+    .order("created_at", { ascending: true });
   return (data ?? []) as unknown as Course[];
 });
 
@@ -80,7 +80,7 @@ export async function searchCourses(opts: CourseQuery = {}): Promise<CoursePage>
       query = query.order("price", { ascending: false });
       break;
     default:
-      query = query.order("is_featured", { ascending: false }).order("created_at", { ascending: false });
+      query = query.order("is_featured", { ascending: false }).order("created_at", { ascending: true });
   }
 
   const from = (requested - 1) * perPage;

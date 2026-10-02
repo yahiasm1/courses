@@ -72,7 +72,7 @@ export default async function LibraryPage() {
                   href={`/courses/${course!.slug}`}
                   className="size-12 shrink-0 overflow-hidden rounded-[10px] border border-line-3"
                 >
-                  <CourseCover course={course!} />
+                  <CourseCover course={course!} fit="cover" />
                 </Link>
                 <div className="min-w-0 flex-1">
                   <Link

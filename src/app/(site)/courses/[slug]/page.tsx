@@ -50,7 +50,7 @@ export default async function CoursePage({ params, searchParams }: Props) {
 
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] lg:items-start">
         <div className="card">
-          <div className="aspect-[4/3] bg-[var(--surface-raised)]">
+          <div className="aspect-video bg-[var(--surface-raised)]">
             <CourseCover course={course} />
           </div>
         </div>
