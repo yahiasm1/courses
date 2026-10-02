@@ -23,17 +23,17 @@ function SignOut({ className = "" }: { className?: string }) {
 
 function PromoCard() {
   return (
-    <div className="rounded-[14px] border border-[#ddd3ff] bg-[linear-gradient(160deg,#ebe4ff,#f8f6ff)] p-[15px]">
+    <div className="rounded-[var(--radius-lg)] border border-[color-mix(in_srgb,var(--accent)_30%,transparent)] bg-[linear-gradient(150deg,var(--accent-soft),var(--surface)_70%)] p-[15px]">
       <div className="brand-mark mb-[11px] !h-[30px] !w-[30px] rounded-[9px]">
         <Icon name="lock" size={16} strokeWidth={2} />
       </div>
       <div className="text-[14.5px] font-bold tracking-[-.01em]">Secure checkout</div>
-      <p className="mb-3 mt-[5px] text-[12.5px] leading-[1.45] text-[#5b4a8f]">
+      <p className="mb-3 mt-[5px] text-[12.5px] leading-[1.45] text-[var(--text-soft)]">
         Pay with CIB or Edahabia. Your course lands in My courses right after payment.
       </p>
       <Link
         href="/shop"
-        className="btn btn-secondary h-[38px] w-full rounded-[10px] border-[#c9b8ff] text-[13px]"
+        className="btn btn-secondary h-[38px] w-full text-[13px]"
       >
         <Icon name="bag" size={16} className="text-accent-ink" />
         Browse courses
@@ -62,7 +62,7 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
         {/* ---- Sidebar (tablet and up) ---- */}
         <aside className="sidebar">
           <div className="border-b border-line-3 p-[14px]">
-            <div className="flex items-center gap-[11px] rounded-[13px] border border-line-2 bg-surface px-[11px] py-[10px] shadow-[0_1px_2px_rgba(16,24,40,.04)]">
+            <div className="flex items-center gap-[11px] rounded-[var(--radius-lg)] border border-line-2 bg-surface px-[11px] py-[10px] shadow-[var(--card-shadow)]">
               <Logo size={32} />
             </div>
           </div>

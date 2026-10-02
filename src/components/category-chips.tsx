@@ -13,7 +13,7 @@ export function CategoryChips({
   /** Let the row scroll edge-to-edge on phones (for rows placed directly on the page). */
   bleed?: boolean;
 }) {
-  const chip = (isActive: boolean) => `pill ${isActive ? "pill-active" : ""}`;
+  const chip = (isActive: boolean) => `pill ${isActive ? "pill--active" : ""}`;
 
   return (
     <div

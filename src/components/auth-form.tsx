@@ -16,7 +16,7 @@ export function AuthForm({ mode, next }: { mode: "login" | "signup"; next?: stri
 
   return (
     <div className={`authcard ${isSignup ? "max-w-[460px]" : ""}`}>
-      <h1 className="mb-1.5 text-[26px] font-bold tracking-[-.025em]">
+      <h1 className="h2 display mb-1.5">
         {isSignup ? "Create your account" : "Welcome back"}
       </h1>
       <p className="mb-6 text-[15px] text-muted">
