@@ -116,6 +116,12 @@ export function Hero({ categories, courses }: { categories: Category[]; courses:
       href: "/shop",
       meta: "Instant download",
       image: null,
+      covers: [
+        ...courses.filter((c) => c.is_featured && c.image_url),
+        ...courses.filter((c) => !c.is_featured && c.image_url),
+      ]
+        .slice(0, 3)
+        .map((c) => c.image_url as string),
       initial: "C",
       pickerTitle: "All courses",
       pickerSub: `${n} ${n === 1 ? "course" : "courses"}`,
