@@ -1,4 +1,5 @@
 import { HeroCarousel, type HeroSlide, type HeroTone } from "@/components/hero-carousel";
+import { categoryPalette, categoryThumb } from "@/lib/category-thumbs";
 import { formatPrice, type Category, type Course } from "@/lib/types";
 
 const tones: HeroTone[] = [
@@ -62,6 +63,31 @@ const tones: HeroTone[] = [
 
 const MAX_SLIDES = 5;
 
+const rgb = (hex: string) => [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
+const rgba = (hex: string, a: number) => `rgba(${rgb(hex).join(",")},${a})`;
+/** Mix a colour with white, for labels and chip text that must read on the dark stage. */
+const tint = (hex: string, w: number) =>
+  `rgb(${rgb(hex)
+    .map((v) => Math.round(v + (255 - v) * w))
+    .join(",")})`;
+
+/** Slide colours matching a category thumbnail's gradient. */
+function toneFromPalette([from, to]: [string, string]): HeroTone {
+  return {
+    dot: from,
+    label: tint(from, 0.45),
+    chipBorder: rgba(from, 0.5),
+    chipBg: rgba(from, 0.14),
+    chipText: tint(from, 0.55),
+    grad: `linear-gradient(140deg,${from},${to})`,
+    shadow: rgba(from, 0.3),
+    btnText: "#fff",
+    aura: `radial-gradient(60% 60% at 50% 45%, ${rgba(from, 0.34)} 0%, ${rgba(to, 0.2)} 45%, rgba(7,6,13,0) 75%)`,
+    auraLg: `radial-gradient(70% 90% at 70% 46%, ${rgba(from, 0.3)} 0%, ${rgba(to, 0.2)} 45%, rgba(7,6,13,0) 74%)`,
+    art: `linear-gradient(150deg,${from},${to})`,
+  };
+}
+
 /** One slide per popular niche (category), ordered by course count. */
 export function Hero({ categories, courses }: { categories: Category[]; courses: Course[] }) {
   const byCategory = new Map<string, Course[]>();
@@ -81,6 +107,7 @@ export function Hero({ categories, courses }: { categories: Category[]; courses:
     const cheapest = Math.min(...list.map((c) => Number(c.price)));
     const featured = list.find((c) => c.is_featured) ?? list[0];
     const chips = list.slice(0, 4).map((c) => c.name);
+    const palette = categoryPalette(cat);
     return {
       id: cat.id,
       eyebrow: `${cat.name} · ${n} ${n === 1 ? "course" : "courses"}`,
@@ -94,10 +121,11 @@ export function Hero({ categories, courses }: { categories: Category[]; courses:
       href: `/shop?category=${cat.slug}`,
       meta: "Instant download",
       image: cat.image_url,
+      thumb: cat.image_url ? null : categoryThumb(cat),
       initial: cat.name.charAt(0),
       pickerTitle: cat.name,
       pickerSub: `${n} ${n === 1 ? "course" : "courses"}`,
-      tone: tones[i % tones.length],
+      tone: palette ? toneFromPalette(palette) : tones[i % tones.length],
     };
   });
 
