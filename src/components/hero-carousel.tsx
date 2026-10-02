@@ -31,6 +31,8 @@ export type HeroSlide = {
   href: string;
   meta: string;
   image: string | null;
+  /** Course covers fanned out as the art when there is no category image. */
+  covers?: string[];
   initial: string;
   pickerTitle: string;
   pickerSub: string;
@@ -38,6 +40,13 @@ export type HeroSlide = {
 };
 
 const DURATION_MS = 6500;
+
+/** Fan layouts for 1–3 covers; the last cover is drawn on top. */
+const COVER_FAN = [
+  ["rotate(-4deg)"],
+  ["translateX(-24%) rotate(-8deg) scale(.9)", "translateX(20%) rotate(5deg)"],
+  ["translateX(-40%) rotate(-10deg) scale(.84)", "translateX(40%) rotate(10deg) scale(.84)", "rotate(-2deg)"],
+];
 
 export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
   const [index, setIndex] = useState(0);
@@ -52,6 +61,7 @@ export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
 
   if (count === 0) return null;
   const current = slides[index];
+  const multi = count > 1;
 
   return (
     <section
@@ -64,7 +74,7 @@ export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
       onFocus={() => setPaused(true)}
       onBlur={() => setPaused(false)}
     >
-      <div className="relative h-[620px] lg:h-[560px]">
+      <div className={`relative ${multi ? "h-[620px] lg:h-[560px]" : "h-[560px] lg:h-[480px]"}`}>
         {slides.map((s, i) => {
           const active = i === index;
           return (
@@ -102,6 +112,20 @@ export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
                     alt=""
                     className="hero-art absolute inset-0 h-full w-full object-contain"
                   />
+                ) : s.covers?.length ? (
+                  <div className="hero-art absolute inset-0 flex items-center justify-center">
+                    <div className="relative aspect-[4/3] h-[56%]">
+                      {s.covers.slice(0, 3).map((src, ci, arr) => (
+                        <img
+                          key={src}
+                          src={src}
+                          alt=""
+                          className="absolute inset-0 h-full w-full rounded-2xl border border-white/10 object-cover shadow-[0_30px_60px_rgba(0,0,0,.5)]"
+                          style={{ transform: COVER_FAN[arr.length - 1][ci] }}
+                        />
+                      ))}
+                    </div>
+                  </div>
                 ) : (
                   <div className="hero-art absolute inset-0 flex items-center justify-center">
                     <div
@@ -136,7 +160,11 @@ export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
 
               {/* Copy */}
               <div className="relative mx-auto h-full w-full max-w-[1360px] px-4 sm:px-6 lg:px-10">
-                <div className="flex h-full flex-col justify-end gap-3.5 pb-[88px] lg:max-w-[620px] lg:justify-center lg:gap-5 lg:pb-24">
+                <div
+                  className={`flex h-full flex-col justify-end gap-3.5 pb-[88px] lg:max-w-[620px] lg:justify-center lg:gap-5 ${
+                    multi ? "lg:pb-24" : "lg:pb-0"
+                  }`}
+                >
                   <div className="flex items-center gap-2.5">
                     <span
                       className="size-1.5 shrink-0 rounded-full lg:size-[7px]"
@@ -171,7 +199,8 @@ export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
                       {s.chips.map((c, ci) => (
                         <span
                           key={c}
-                          className={`rounded-[5px] border px-[13px] py-[7px] text-[0.78rem] ${
+                          title={c}
+                          className={`max-w-[290px] truncate rounded-[5px] border px-[13px] py-[7px] text-[0.78rem] ${
                             ci === s.highlightChip ? "font-semibold" : "font-medium"
                           }`}
                           style={
@@ -220,57 +249,60 @@ export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
       </div>
 
       {/* Desktop picker + progress */}
-      <div className="pointer-events-none absolute inset-x-0 bottom-7 z-10 mx-auto hidden w-full max-w-[1360px] items-end justify-between px-4 sm:px-6 lg:flex lg:px-10">
-        <div className="pointer-events-auto flex flex-wrap items-center gap-2">
-          {slides.map((s, i) => (
-            <button
-              key={s.id}
-              type="button"
-              aria-current={i === index}
-              onClick={() => setIndex(i)}
-              className="flex min-w-[112px] cursor-pointer flex-col items-start gap-[3px] rounded-md border px-[13px] py-[9px] text-start transition-colors duration-300"
-              style={
-                i === index
-                  ? { borderColor: "rgba(124,92,255,.55)", background: "rgba(124,92,255,.16)" }
-                  : { borderColor: "rgba(255,255,255,.1)", background: "rgba(255,255,255,.04)" }
-              }
-            >
-              <span className="text-[0.75rem] font-semibold text-white">{s.pickerTitle}</span>
-              <span className="text-[0.62rem] text-[var(--hero-fg-muted)]">{s.pickerSub}</span>
-            </button>
-          ))}
+      {multi && (
+        <div className="pointer-events-none absolute inset-x-0 bottom-7 z-10 mx-auto hidden w-full max-w-[1360px] items-end justify-between px-4 sm:px-6 lg:flex lg:px-10">
+          <div className="pointer-events-auto flex flex-wrap items-center gap-2">
+            {slides.map((s, i) => (
+              <button
+                key={s.id}
+                type="button"
+                aria-current={i === index}
+                onClick={() => setIndex(i)}
+                className="flex min-w-[112px] cursor-pointer flex-col items-start gap-[3px] rounded-md border px-[13px] py-[9px] text-start transition-colors duration-300"
+                style={
+                  i === index
+                    ? { borderColor: "rgba(124,92,255,.55)", background: "rgba(124,92,255,.16)" }
+                    : { borderColor: "rgba(255,255,255,.1)", background: "rgba(255,255,255,.04)" }
+                }
+              >
+                <span className="text-[0.75rem] font-semibold text-white">{s.pickerTitle}</span>
+                <span className="text-[0.62rem] text-[var(--hero-fg-muted)]">{s.pickerSub}</span>
+              </button>
+            ))}
+          </div>
+          <div className="pointer-events-auto mb-1.5 flex items-center gap-2.5 text-[0.72rem] text-[var(--hero-fg-muted)]">
+            <span dir="ltr" className="tabular font-semibold text-[var(--hero-fg)]">
+              {String(index + 1).padStart(2, "0")} / {String(count).padStart(2, "0")}
+            </span>
+            <span className="block h-0.5 w-16 overflow-hidden rounded-sm bg-white/15">
+              <span
+                key={`${current.id}-${index}`}
+                className="hero-progress block h-full w-full rounded-sm bg-[var(--color-brand-500)]"
+                style={{ "--hero-duration": `${DURATION_MS}ms` } as React.CSSProperties}
+              />
+            </span>
+          </div>
         </div>
-        <div className="pointer-events-auto mb-1.5 flex items-center gap-2.5 text-[0.72rem] text-[var(--hero-fg-muted)]">
-          <span dir="ltr" className="tabular font-semibold text-[var(--hero-fg)]">
-            {String(index + 1).padStart(2, "0")} / {String(count).padStart(2, "0")}
-          </span>
-          <span className="block h-0.5 w-16 overflow-hidden rounded-sm bg-white/15">
-            <span
-              key={`${current.id}-${index}`}
-              className="hero-progress block h-full w-full rounded-sm bg-[var(--color-brand-500)]"
-              style={{ "--hero-duration": `${DURATION_MS}ms` } as React.CSSProperties}
-            />
-          </span>
-        </div>
-      </div>
+      )}
 
       {/* Mobile dots */}
       <div className="absolute inset-x-0 bottom-0 z-10 mx-auto flex w-full max-w-[1360px] items-center justify-between px-4 pb-[26px] sm:px-6 lg:hidden lg:px-10">
         <div className="flex items-center gap-1.5">
-          {slides.map((s, i) => (
-            <button
-              key={s.id}
-              type="button"
-              aria-label={s.pickerTitle}
-              aria-current={i === index}
-              onClick={() => setIndex(i)}
-              className="h-1.5 cursor-pointer rounded-sm p-0 transition-[width,background-color] duration-300"
-              style={{
-                width: i === index ? 28 : 10,
-                background: i === index ? "var(--color-brand-500)" : "rgba(255,255,255,.24)",
-              }}
-            />
-          ))}
+          {multi &&
+            slides.map((s, i) => (
+              <button
+                key={s.id}
+                type="button"
+                aria-label={s.pickerTitle}
+                aria-current={i === index}
+                onClick={() => setIndex(i)}
+                className="h-1.5 cursor-pointer rounded-sm p-0 transition-[width,background-color] duration-300"
+                style={{
+                  width: i === index ? 28 : 10,
+                  background: i === index ? "var(--color-brand-500)" : "rgba(255,255,255,.24)",
+                }}
+              />
+            ))}
         </div>
         <span className="flex items-center gap-[7px] text-[0.68rem] text-[var(--hero-fg-muted)]">
           <Icon name="flash" size={12} strokeWidth={2} />
