@@ -2,9 +2,9 @@ import type { Course } from "@/lib/types";
 
 /* Placeholder tones from the design's avatar palette. */
 const tones = [
-  "linear-gradient(150deg,#ff8537,#ff6004)",
+  "linear-gradient(150deg,#a78bfa,#6d3bf0)",
   "linear-gradient(150deg,#2e90fa,#175cd3)",
-  "linear-gradient(150deg,#7a5af8,#5925dc)",
+  "linear-gradient(150deg,#f472b6,#be185d)",
   "linear-gradient(150deg,#17b26a,#079455)",
   "linear-gradient(150deg,#4a4a44,#17170f)",
 ];

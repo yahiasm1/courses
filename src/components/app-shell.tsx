@@ -23,17 +23,17 @@ function SignOut({ className = "" }: { className?: string }) {
 
 function PromoCard() {
   return (
-    <div className="rounded-[14px] border border-[#ffdcc2] bg-[linear-gradient(160deg,#ffe9d6,#fff6ee)] p-[15px]">
+    <div className="rounded-[14px] border border-[#ddd3ff] bg-[linear-gradient(160deg,#ebe4ff,#f8f6ff)] p-[15px]">
       <div className="brand-mark mb-[11px] !h-[30px] !w-[30px] rounded-[9px]">
         <Icon name="lock" size={16} strokeWidth={2} />
       </div>
       <div className="text-[14.5px] font-bold tracking-[-.01em]">Secure checkout</div>
-      <p className="mb-3 mt-[5px] text-[12.5px] leading-[1.45] text-[#8a5a32]">
+      <p className="mb-3 mt-[5px] text-[12.5px] leading-[1.45] text-[#5b4a8f]">
         Pay with CIB or Edahabia. Your course lands in My courses right after payment.
       </p>
       <Link
         href="/shop"
-        className="btn btn-secondary h-[38px] w-full rounded-[10px] border-[#f0c9a6] text-[13px]"
+        className="btn btn-secondary h-[38px] w-full rounded-[10px] border-[#c9b8ff] text-[13px]"
       >
         <Icon name="bag" size={16} className="text-accent-ink" />
         Browse courses

@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 /* ---------------------------------------------------------------------------
-   Design tokens — warm off-white desk, white shell, orange accent.
+   Design tokens — warm off-white desk, white shell, violet accent.
    Edit these to re-skin the whole site.
    ------------------------------------------------------------------------- */
 :root {
@@ -20,13 +20,13 @@
   --line-2: #e9e9e4;
   --line-3: #ecece6;
 
-  --accent: #ff6e12;
-  --accent-strong: #ff5d00;
-  --accent-edge: #e85100;
-  --accent-soft: #fff3e9;
-  --accent-soft-edge: #ffe0c7;
-  --accent-ink: #b8450b;
-  --accent-ink-strong: #93370a;
+  --accent: #7a5af8;
+  --accent-strong: #6d3bf0;
+  --accent-edge: #5925dc;
+  --accent-soft: #f4f0ff;
+  --accent-soft-edge: #ddd3ff;
+  --accent-ink: #5925dc;
+  --accent-ink-strong: #4a1fc0;
   --dark: #17170f;
 
   --green: #17b26a;
@@ -42,12 +42,11 @@
   --red-edge: #fdd9d6;
   --red-ink: #b42318;
 
-  --grad: linear-gradient(180deg, #ff8537, #ff6004);
-  --grad-h: linear-gradient(90deg, #ff8537, #ff6004);
+  --grad: linear-gradient(180deg, #a78bfa, #6d3bf0);
+  --grad-h: linear-gradient(90deg, #a78bfa, #6d3bf0);
 
   --shadow-card: 0 1px 2px rgba(16, 24, 40, 0.04), 0 14px 30px -24px rgba(16, 24, 40, 0.28);
   --shadow-card-hover: 0 1px 2px rgba(16, 24, 40, 0.05), 0 22px 40px -24px rgba(16, 24, 40, 0.35);
-  --shadow-shell: 0 1px 2px rgba(16, 24, 40, 0.05), 0 30px 60px -40px rgba(16, 24, 40, 0.35);
   --shadow-auth: 0 1px 2px rgba(16, 24, 40, 0.04), 0 26px 50px -30px rgba(16, 24, 40, 0.28);
   --shadow-panel: 0 1px 2px rgba(16, 24, 40, 0.06), 0 24px 48px -22px rgba(16, 24, 40, 0.42);
 }
@@ -100,7 +99,7 @@ body {
 input:focus-visible,
 textarea:focus-visible,
 select:focus-visible {
-  outline: 2px solid rgba(255, 110, 18, 0.35);
+  outline: 2px solid rgba(122, 90, 248, 0.35);
   outline-offset: 1px;
   border-color: var(--accent);
 }
@@ -110,18 +109,13 @@ select:focus-visible {
    ------------------------------------------------------------------------- */
 .desk {
   min-height: 100vh;
-  padding: 22px;
   background: var(--bg);
 }
 
 .shell {
   display: flex;
-  min-height: calc(100vh - 44px);
-  overflow: hidden;
-  border: 1px solid var(--line);
-  border-radius: 22px;
+  min-height: 100vh;
   background: var(--surface);
-  box-shadow: var(--shadow-shell);
 }
 
 .sidebar {
@@ -190,15 +184,6 @@ select:focus-visible {
 }
 
 @media (max-width: 768px) {
-  .desk {
-    padding: 0;
-  }
-  .shell {
-    min-height: 100vh;
-    border-left: 0;
-    border-right: 0;
-    border-radius: 0;
-  }
   .sidebar {
     display: none;
   }
@@ -401,7 +386,7 @@ select:focus-visible {
   }
   .search:focus-within {
     border-color: var(--accent);
-    outline: 2px solid rgba(255, 110, 18, 0.35);
+    outline: 2px solid rgba(122, 90, 248, 0.35);
     outline-offset: 1px;
   }
 
@@ -466,7 +451,7 @@ select:focus-visible {
   }
   .pill-active,
   .pill-active:hover {
-    border-color: #e1590f;
+    border-color: #6d3bf0;
     background: var(--accent-soft);
     color: var(--accent-ink);
   }
@@ -504,7 +489,7 @@ select:focus-visible {
     background: var(--accent-soft);
     font-weight: 600;
     color: var(--ink);
-    box-shadow: 0 1px 2px rgba(224, 89, 15, 0.08);
+    box-shadow: 0 1px 2px rgba(109, 59, 240, 0.08);
   }
   .nav-item-active svg {
     color: var(--accent-ink);
@@ -524,7 +509,7 @@ select:focus-visible {
     color: var(--muted);
   }
   .nav-item-active .nav-badge {
-    border-color: #ffdcc2;
+    border-color: #c9b8ff;
     background: var(--surface);
     color: var(--accent-ink);
   }
@@ -583,7 +568,7 @@ select:focus-visible {
     border-radius: 10px;
     background: var(--grad);
     color: #fff;
-    box-shadow: 0 2px 6px rgba(224, 89, 15, 0.3);
+    box-shadow: 0 2px 6px rgba(109, 59, 240, 0.3);
   }
 
   .avatar {
@@ -594,7 +579,7 @@ select:focus-visible {
     align-items: center;
     justify-content: center;
     border-radius: 50%;
-    background: linear-gradient(150deg, #ff8537, #ff6004);
+    background: linear-gradient(150deg, #a78bfa, #6d3bf0);
     font-size: 14px;
     font-weight: 600;
     color: #fff;

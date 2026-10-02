@@ -9,7 +9,7 @@ import { SITE_TAGLINE } from "@/lib/site";
 export const dynamic = "force-dynamic";
 
 const tileTones = [
-  "linear-gradient(150deg,#ff8537,#ff6004)",
+  "linear-gradient(150deg,#a78bfa,#6d3bf0)",
   "linear-gradient(150deg,#2e90fa,#175cd3)",
   "linear-gradient(150deg,#17b26a,#079455)",
   "linear-gradient(150deg,#4a4a44,#17170f)",
