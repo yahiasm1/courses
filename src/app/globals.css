@@ -175,56 +175,8 @@ body {
 }
 
 /* ---------------------------------------------------------------------------
-   App shell: sidebar + main (topbar / content / footer), full viewport
+   Auth pages
    ------------------------------------------------------------------------- */
-.desk {
-  min-height: 100vh;
-  background: var(--bg);
-}
-
-.shell {
-  display: flex;
-  min-height: 100vh;
-  background: var(--bg);
-}
-
-.sidebar {
-  display: flex;
-  width: 252px;
-  flex: 0 0 auto;
-  flex-direction: column;
-  border-right: 1px solid var(--border);
-  background: var(--surface);
-}
-
-.main {
-  display: flex;
-  min-width: 0;
-  flex: 1;
-  flex-direction: column;
-  background: var(--bg);
-}
-
-.topbar {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 13px 22px;
-  border-bottom: 1px solid var(--border);
-  background: var(--surface);
-}
-
-.pad {
-  flex: 1;
-  min-width: 0;
-  padding: 24px;
-  overflow-x: hidden;
-}
-
-.menu-btn {
-  display: none;
-}
-
 .authwrap {
   display: flex;
   min-height: 100vh;
@@ -246,28 +198,7 @@ body {
   box-shadow: var(--card-shadow-hover);
 }
 
-@media (max-width: 1024px) {
-  .sidebar {
-    width: 212px;
-  }
-  .topbar-search {
-    display: none !important;
-  }
-}
-
 @media (max-width: 768px) {
-  .sidebar {
-    display: none;
-  }
-  .topbar {
-    padding: 12px 16px;
-  }
-  .pad {
-    padding: 18px;
-  }
-  .menu-btn {
-    display: flex;
-  }
   .authwrap {
     padding: 18px 18px 48px;
   }
@@ -697,59 +628,82 @@ body {
     color: #fff;
   }
 
-  .nav-label {
-    padding: 0 8px 9px;
-    font-family: var(--font-code);
-    font-size: 0.6875rem;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: var(--text-muted);
-  }
-  .nav-item {
-    display: flex;
+  /* Header links and icon buttons */
+  .hdr-link {
+    display: inline-flex;
+    height: 2.5rem;
     align-items: center;
-    gap: 11px;
-    padding: 9px 10px;
-    border: 1px solid transparent;
+    gap: 0.5rem;
     border-radius: var(--radius-md);
-    font-size: 0.9rem;
+    padding: 0 0.75rem;
+    font-size: 0.82rem;
     font-weight: 500;
     color: var(--text-soft);
     cursor: pointer;
-    transition: all 0.18s;
+    white-space: nowrap;
+    transition: color 0.15s, background-color 0.15s;
   }
-  .nav-item:hover {
+  .hdr-link:hover,
+  .hdr-link[data-open="true"] {
     background: var(--surface-raised);
     color: var(--text);
   }
-  .nav-item svg {
-    color: var(--text-muted);
-  }
-  .nav-item-active,
-  .nav-item-active:hover {
-    border-color: color-mix(in srgb, var(--accent) 45%, transparent);
-    background: var(--accent-soft);
-    color: var(--text);
-  }
-  .nav-item-active svg {
-    color: var(--accent-readable);
-  }
-  .nav-badge {
-    display: flex;
-    min-width: 22px;
-    height: 20px;
+  .hdr-icon {
+    display: inline-flex;
+    width: 2.5rem;
+    height: 2.5rem;
+    flex: 0 0 auto;
     align-items: center;
     justify-content: center;
-    padding: 0 6px;
-    border: 1px solid var(--border-strong);
-    border-radius: var(--radius-sm);
-    background: var(--surface-raised);
-    font-family: var(--font-code);
-    font-size: 0.7rem;
+    border-radius: var(--radius-md);
     color: var(--text-soft);
+    cursor: pointer;
+    transition: color 0.15s, background-color 0.15s;
   }
-  .nav-item-active .nav-badge {
-    border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+  .hdr-icon:hover {
+    background: var(--surface-raised);
+    color: var(--text);
+  }
+  .menu-panel {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    z-index: 50;
+    min-width: 15rem;
+    padding: 0.375rem;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+    box-shadow: var(--card-shadow-hover);
+  }
+  .menu-item {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    border-radius: var(--radius-md);
+    padding: 0.5rem 0.75rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-soft);
+    transition: color 0.15s, background-color 0.15s;
+  }
+  .menu-item:hover {
+    background: var(--surface-raised);
+    color: var(--text);
+  }
+  .tab-item {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.5rem 0;
+    font-size: 0.68rem;
+    font-weight: 500;
+    color: var(--text-soft);
+    cursor: pointer;
+  }
+  .tab-item-active {
     color: var(--accent-readable);
   }
 
@@ -902,6 +856,90 @@ body {
 }
 
 /* ---------------------------------------------------------------------------
+   Hero carousel (from the supplied stylesheet)
+   ------------------------------------------------------------------------- */
+.hero-stage {
+  --hero-ink: #07060d;
+  --hero-fg: #f4f2ff;
+  --hero-fg-soft: #a9a4c0;
+  --hero-fg-muted: #8d88a6;
+  --hero-mask-to: right;
+  --hero-scrim-angle: 90deg;
+  background: var(--hero-ink);
+  color: var(--hero-fg);
+}
+[dir="rtl"] .hero-stage {
+  --hero-mask-to: left;
+  --hero-scrim-angle: 270deg;
+}
+.hero-stage .bidi-auto {
+  unicode-bidi: plaintext;
+}
+.hero-title {
+  font-size: clamp(2rem, 2.22vw + 1.36rem, 3.4rem);
+}
+.hero-art {
+  -webkit-mask-image: linear-gradient(to bottom, #000 62%, transparent 96%);
+  mask-image: linear-gradient(to bottom, #000 62%, transparent 96%);
+}
+@media (min-width: 1024px) {
+  .hero-art {
+    -webkit-mask-image: linear-gradient(to var(--hero-mask-to), transparent 0%, rgba(0, 0, 0, 0.5) 12%, #000 30%);
+    mask-image: linear-gradient(to var(--hero-mask-to), transparent 0%, rgba(0, 0, 0, 0.5) 12%, #000 30%);
+  }
+}
+@keyframes heroFloatArt {
+  0%,
+  to {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-14px);
+  }
+}
+@keyframes heroAuraPulse {
+  0%,
+  to {
+    opacity: 0.75;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+@keyframes heroProgress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+.hero-art-float {
+  animation: heroFloatArt var(--hero-float, 8s) ease-in-out infinite;
+}
+.hero-aura {
+  animation: 7s ease-in-out infinite heroAuraPulse;
+}
+.hero-progress {
+  transform-origin: left;
+  animation: heroProgress var(--hero-duration, 6s) linear forwards;
+}
+[dir="rtl"] .hero-progress {
+  transform-origin: right;
+}
+.hero-stage[data-paused] .hero-aura,
+.hero-stage[data-paused] .hero-art-float,
+.hero-stage[data-paused] .hero-progress {
+  animation-play-state: paused;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-art-float,
+  .hero-aura {
+    animation: none;
+  }
+}
+
+/* ---------------------------------------------------------------------------
    WhatsApp banner (from the supplied stylesheet)
    ------------------------------------------------------------------------- */
 div:has(> .whatsapp-banner),
@@ -999,4 +1037,26 @@ header:has(> .whatsapp-banner) {
     padding: 9px 12px;
     font-size: 12px;
   }
+}
+
+/* Telegram variant of the banner */
+.whatsapp-banner.telegram {
+  background:
+    radial-gradient(circle at 15% 50%, rgba(42, 171, 238, 0.22), transparent 30%),
+    linear-gradient(135deg, #0f1620 0%, #13202e 50%, #0f1620 100%);
+  border-color: rgba(42, 171, 238, 0.28);
+}
+.whatsapp-banner.telegram .whatsapp-icon,
+.whatsapp-banner.telegram .whatsapp-btn {
+  background: #2aabee;
+}
+.whatsapp-banner.telegram .whatsapp-btn {
+  color: #06202e;
+}
+.whatsapp-banner.telegram .whatsapp-btn:hover {
+  background: #4dbcf4;
+  color: #06202e;
+}
+.whatsapp-banner.telegram .whatsapp-text span {
+  color: #b9cbd8;
 }

@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { getCourse, getUser } from "@/lib/data";
 import { hasPurchased } from "@/lib/purchases";
 import { formatPrice } from "@/lib/types";
+import { Container } from "@/components/container";
 import { CourseCover } from "@/components/course-cover";
 import { Icon } from "@/components/icons";
 import { buyCourse } from "@/app/actions/checkout";
@@ -30,7 +31,7 @@ export default async function CoursePage({ params, searchParams }: Props) {
   const owned = user ? await hasPurchased(user.id, course.id) : false;
 
   return (
-    <div className="flex flex-col gap-4">
+    <Container className="flex flex-col gap-4">
       <nav className="flex items-center gap-1.5 text-[13.5px] text-muted">
         <Link href="/" className="hover:text-ink">
           Courses
@@ -49,7 +50,7 @@ export default async function CoursePage({ params, searchParams }: Props) {
 
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] lg:items-start">
         <div className="card">
-          <div className="aspect-[4/3] bg-[var(--surface-raised)]">
+          <div className="aspect-video bg-[var(--surface-raised)]">
             <CourseCover course={course} />
           </div>
         </div>
@@ -131,6 +132,6 @@ export default async function CoursePage({ params, searchParams }: Props) {
           )}
         </div>
       </div>
-    </div>
+    </Container>
   );
 }

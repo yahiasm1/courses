@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { Container } from "@/components/container";
 import { CourseCover } from "@/components/course-cover";
 import { Icon } from "@/components/icons";
 
@@ -30,7 +31,7 @@ export default async function LibraryPage() {
   const rows = ((data ?? []) as unknown as Row[]).filter((r) => r.course);
 
   return (
-    <div className="flex flex-col gap-4">
+    <Container className="flex flex-col gap-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h1 className="h1 display">My courses</h1>
@@ -71,7 +72,7 @@ export default async function LibraryPage() {
                   href={`/courses/${course!.slug}`}
                   className="size-12 shrink-0 overflow-hidden rounded-[10px] border border-line-3"
                 >
-                  <CourseCover course={course!} />
+                  <CourseCover course={course!} fit="cover" />
                 </Link>
                 <div className="min-w-0 flex-1">
                   <Link
@@ -95,6 +96,6 @@ export default async function LibraryPage() {
           </ul>
         </section>
       )}
-    </div>
+    </Container>
   );
 }

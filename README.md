@@ -2,7 +2,8 @@
 
 A simple storefront for selling your courses — a dark-first theme (light when the system prefers it) with a violet accent, Rubik and Alexandria type.
 
-- **Landing page = course list**, filterable by category, plus a category grid
+- **Landing page** — niche hero carousel, popular niches, then every course with pagination
+- **All courses** (`/shop`) — search, filter by niche and price range, sort, pagination
 - **Sign up / Sign in** (Supabase Auth, email + password)
 - **Course page** — name, description, price, link to the external sales page, Buy button
 - **SlickPay checkout** (CIB / Edahabia) → the course appears in **My courses** with its download link

@@ -12,12 +12,20 @@ export const metadata: Metadata = {
   description: "Browse all courses, pay securely with CIB or Edahabia, download instantly.",
 };
 
+/* Applies a remembered theme before first paint so there is no flash. */
+const themeScript = `(function(){try{var t=localStorage.getItem("theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t)}catch(e){}})();`;
+
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${rubik.variable} ${alexandria.variable} ${geistMono.variable}`}>
-      <body className="font-sans antialiased">
-        {children}
-      </body>
+    <html
+      lang="en"
+      suppressHydrationWarning
+      className={`${rubik.variable} ${alexandria.variable} ${geistMono.variable}`}
+    >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+      </head>
+      <body className="font-sans antialiased">{children}</body>
     </html>
   );
 }
