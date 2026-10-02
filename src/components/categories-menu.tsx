@@ -61,7 +61,7 @@ function Menu({ categories }: { categories: Pick<Category, "id" | "name" | "slug
           <div className="my-1 h-px bg-[var(--border)]" />
           <Link href="/shop" className="menu-item" role="menuitem">
             <Icon name="bag" size={16} className="text-faint" />
-            All courses
+            Browse all
           </Link>
         </div>
       )}

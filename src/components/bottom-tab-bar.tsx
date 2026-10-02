@@ -7,7 +7,7 @@ import { logout } from "@/app/actions/auth";
 
 const tabs: { href: string; label: string; icon: IconName; prefix?: boolean }[] = [
   { href: "/", label: "Home", icon: "home" },
-  { href: "/shop", label: "Shop", icon: "bag" },
+  { href: "/shop", label: "Courses", icon: "bag" },
   { href: "/library", label: "My courses", icon: "book", prefix: true },
 ];
 

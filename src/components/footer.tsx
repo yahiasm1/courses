@@ -10,7 +10,7 @@ export function Footer() {
         </span>
         <nav className="flex flex-wrap items-center gap-x-5 gap-y-1">
           <Link href="/shop" className="hover:text-ink">
-            Shop
+            All courses
           </Link>
           <Link href="/library" className="hover:text-ink">
             My courses

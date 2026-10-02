@@ -856,6 +856,90 @@ body {
 }
 
 /* ---------------------------------------------------------------------------
+   Hero carousel (from the supplied stylesheet)
+   ------------------------------------------------------------------------- */
+.hero-stage {
+  --hero-ink: #07060d;
+  --hero-fg: #f4f2ff;
+  --hero-fg-soft: #a9a4c0;
+  --hero-fg-muted: #8d88a6;
+  --hero-mask-to: right;
+  --hero-scrim-angle: 90deg;
+  background: var(--hero-ink);
+  color: var(--hero-fg);
+}
+[dir="rtl"] .hero-stage {
+  --hero-mask-to: left;
+  --hero-scrim-angle: 270deg;
+}
+.hero-stage .bidi-auto {
+  unicode-bidi: plaintext;
+}
+.hero-title {
+  font-size: clamp(2rem, 2.22vw + 1.36rem, 3.4rem);
+}
+.hero-art {
+  -webkit-mask-image: linear-gradient(to bottom, #000 62%, transparent 96%);
+  mask-image: linear-gradient(to bottom, #000 62%, transparent 96%);
+}
+@media (min-width: 1024px) {
+  .hero-art {
+    -webkit-mask-image: linear-gradient(to var(--hero-mask-to), transparent 0%, rgba(0, 0, 0, 0.5) 12%, #000 30%);
+    mask-image: linear-gradient(to var(--hero-mask-to), transparent 0%, rgba(0, 0, 0, 0.5) 12%, #000 30%);
+  }
+}
+@keyframes heroFloatArt {
+  0%,
+  to {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-14px);
+  }
+}
+@keyframes heroAuraPulse {
+  0%,
+  to {
+    opacity: 0.75;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+@keyframes heroProgress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+.hero-art-float {
+  animation: heroFloatArt var(--hero-float, 8s) ease-in-out infinite;
+}
+.hero-aura {
+  animation: 7s ease-in-out infinite heroAuraPulse;
+}
+.hero-progress {
+  transform-origin: left;
+  animation: heroProgress var(--hero-duration, 6s) linear forwards;
+}
+[dir="rtl"] .hero-progress {
+  transform-origin: right;
+}
+.hero-stage[data-paused] .hero-aura,
+.hero-stage[data-paused] .hero-art-float,
+.hero-stage[data-paused] .hero-progress {
+  animation-play-state: paused;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-art-float,
+  .hero-aura {
+    animation: none;
+  }
+}
+
+/* ---------------------------------------------------------------------------
    WhatsApp banner (from the supplied stylesheet)
    ------------------------------------------------------------------------- */
 div:has(> .whatsapp-banner),

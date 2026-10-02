@@ -19,7 +19,7 @@ export async function SiteHeader() {
 
         <nav className="hidden shrink-0 items-center gap-1 lg:flex" aria-label="Shop">
           <Link href="/shop" className="hdr-link shell-focus">
-            Shop
+            All courses
           </Link>
           <CategoriesMenu categories={categories} />
         </nav>
