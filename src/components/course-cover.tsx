@@ -1,11 +1,12 @@
 import type { Course } from "@/lib/types";
 
-const gradients = [
-  "from-violet-500 to-indigo-600",
-  "from-emerald-500 to-teal-600",
-  "from-orange-500 to-rose-600",
-  "from-sky-500 to-blue-600",
-  "from-fuchsia-500 to-purple-600",
+/* Placeholder tones from the design's avatar palette. */
+const tones = [
+  "linear-gradient(150deg,#ff8537,#ff6004)",
+  "linear-gradient(150deg,#2e90fa,#175cd3)",
+  "linear-gradient(150deg,#7a5af8,#5925dc)",
+  "linear-gradient(150deg,#17b26a,#079455)",
+  "linear-gradient(150deg,#4a4a44,#17170f)",
 ];
 
 /** Course image, or a coloured placeholder with the course initial. */
@@ -21,10 +22,15 @@ export function CourseCover({
       <img src={course.image_url} alt={course.name} className={`size-full object-cover ${className}`} />
     );
   }
-  const g = gradients[course.name.length % gradients.length];
+  const tone = tones[course.name.length % tones.length];
   return (
-    <div className={`grid size-full place-items-center bg-gradient-to-br ${g} ${className}`}>
-      <span className="text-5xl font-bold text-white/90">{course.name.charAt(0)}</span>
+    <div
+      className={`grid size-full place-items-center ${className}`}
+      style={{ background: tone }}
+    >
+      <span className="text-5xl font-bold tracking-[-.03em] text-white/90">
+        {course.name.charAt(0)}
+      </span>
     </div>
   );
 }
