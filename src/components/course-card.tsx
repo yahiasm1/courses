@@ -21,11 +21,6 @@ export function CourseCard({ course }: { course: Course }) {
         <h3 className="line-clamp-2 text-[15px] font-semibold leading-snug tracking-[-.01em]">
           {course.name}
         </h3>
-        {course.description && (
-          <p className="line-clamp-2 hidden text-[13px] leading-[1.5] text-muted sm:block">
-            {course.description}
-          </p>
-        )}
       </div>
       <div className="card-foot flex items-center justify-between gap-2 !px-3.5 sm:!px-4">
         <span className="price-sm display whitespace-nowrap">
