@@ -4,18 +4,13 @@ import { Container } from "@/components/container";
 import { CourseGrid } from "@/components/course-card";
 import { Hero } from "@/components/hero";
 import { Icon } from "@/components/icons";
+import { NicheGrid } from "@/components/niche-grid";
 import { Pagination } from "@/components/pagination";
 import { TrustStrip } from "@/components/trust-strip";
+import { categoryImage } from "@/lib/category-thumbs";
 import { SITE_TAGLINE } from "@/lib/site";
 
 export const dynamic = "force-dynamic";
-
-const tileTones = [
-  "linear-gradient(150deg,#a78bfa,#6d3bf0)",
-  "linear-gradient(150deg,#2e90fa,#175cd3)",
-  "linear-gradient(150deg,#17b26a,#079455)",
-  "linear-gradient(150deg,#4a4a44,#17170f)",
-];
 
 export default async function HomePage({
   searchParams,
@@ -33,7 +28,9 @@ export default async function HomePage({
   allCourses.forEach(
     (c) => c.category_id && counts.set(c.category_id, (counts.get(c.category_id) ?? 0) + 1),
   );
-  const niches = [...categories].sort((a, b) => (counts.get(b.id) ?? 0) - (counts.get(a.id) ?? 0));
+  const niches = [...categories]
+    .sort((a, b) => (counts.get(b.id) ?? 0) - (counts.get(a.id) ?? 0))
+    .map((c) => ({ id: c.id, name: c.name, slug: c.slug, image: categoryImage(c), count: counts.get(c.id) ?? 0 }));
 
   return (
     <>
@@ -51,31 +48,7 @@ export default async function HomePage({
                 All courses
               </Link>
             </div>
-            <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-4">
-              {niches.map((c, i) => (
-                <Link
-                  key={c.id}
-                  href={`/shop?category=${c.slug}`}
-                  className="group relative flex aspect-[5/3] flex-col justify-end overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border)] p-3.5 text-white lift"
-                >
-                  {c.image_url ? (
-                    <img
-                      src={c.image_url}
-                      alt=""
-                      className="absolute inset-0 size-full object-cover transition duration-300 group-hover:scale-105"
-                    />
-                  ) : (
-                    <div className="absolute inset-0" style={{ background: tileTones[i % 4] }} />
-                  )}
-                  <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/20 to-black/80" />
-                  <span className="relative text-[15px] font-semibold tracking-[-.01em]">{c.name}</span>
-                  <span className="relative mt-0.5 flex items-center gap-1 text-[12.5px] text-white/80">
-                    {counts.get(c.id) ?? 0} {counts.get(c.id) === 1 ? "course" : "courses"}
-                    <Icon name="arrowRight" size={13} />
-                  </span>
-                </Link>
-              ))}
-            </div>
+            <NicheGrid niches={niches} />
           </section>
         )}
 
