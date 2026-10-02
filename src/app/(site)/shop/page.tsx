@@ -25,7 +25,7 @@ export default async function ShopPage({
   return (
     <div className="flex flex-col gap-4">
       <div>
-        <h1 className="h1">{current?.name ?? "Shop"}</h1>
+        <h1 className="h1 display">{current?.name ?? "Shop"}</h1>
         <p className="mt-1 text-[14.5px] text-muted">{countLabel}</p>
       </div>
 

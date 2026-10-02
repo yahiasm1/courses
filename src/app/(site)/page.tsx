@@ -9,7 +9,7 @@ import { SITE_TAGLINE } from "@/lib/site";
 export const dynamic = "force-dynamic";
 
 const tileTones = [
-  "linear-gradient(150deg,#ff8537,#ff6004)",
+  "linear-gradient(150deg,#a78bfa,#6d3bf0)",
   "linear-gradient(150deg,#2e90fa,#175cd3)",
   "linear-gradient(150deg,#17b26a,#079455)",
   "linear-gradient(150deg,#4a4a44,#17170f)",
@@ -38,7 +38,7 @@ export default async function HomePage({
       {/* Page header */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="h1">{current?.name ?? "All courses"}</h1>
+          <h1 className="h1 display">{current?.name ?? "All courses"}</h1>
           <p className="mt-1 text-[14.5px] text-muted">
             {current
               ? `${courses.length} ${courses.length === 1 ? "course" : "courses"} in this category`
@@ -59,7 +59,7 @@ export default async function HomePage({
         <section className="card mt-2">
           <div className="card-head">
             <span className="eyebrow">Popular categories</span>
-            <Link href="/shop" className="link text-[13px]">
+            <Link href="/shop" className="link text-[13px] linklift">
               See all
             </Link>
           </div>
@@ -79,7 +79,7 @@ export default async function HomePage({
                 ) : (
                   <div className="absolute inset-0" style={{ background: tileTones[i % 4] }} />
                 )}
-                <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(17,17,16,0)_40%,rgba(17,17,16,.55)_100%)]" />
+                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/20 to-black/80" />
                 <span className="relative text-[15px] font-semibold tracking-[-.01em]">{c.name}</span>
                 <span className="relative mt-0.5 flex items-center gap-1 text-[12.5px] text-white/80">
                   {counts.get(c.id) ?? 0} {counts.get(c.id) === 1 ? "course" : "courses"}

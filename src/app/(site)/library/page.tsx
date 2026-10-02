@@ -33,7 +33,7 @@ export default async function LibraryPage() {
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="h1">My courses</h1>
+          <h1 className="h1 display">My courses</h1>
           <p className="mt-1 text-[14.5px] text-muted">
             {rows.length} {rows.length === 1 ? "course" : "courses"} · {user.email}
           </p>

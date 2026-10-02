@@ -22,7 +22,7 @@ function CrumbsInner({ categories }: { categories: { slug: string; name: string 
   return (
     <div className="flex min-w-0 flex-1 items-center gap-2 overflow-hidden text-[14.5px] text-muted">
       <span className="hidden sm:block">{root}</span>
-      <Icon name="chevronRight" size={16} className="hidden shrink-0 text-[#c4c4bb] sm:block" />
+      <Icon name="chevronRight" size={16} className="hidden shrink-0 text-faint sm:block" />
       <span className="truncate font-semibold text-ink">{leaf}</span>
     </div>
   );

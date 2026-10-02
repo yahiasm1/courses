@@ -32,7 +32,7 @@ export function MobileDrawer({
       <button
         type="button"
         aria-label="Open menu"
-        className="icon-btn menu-btn"
+        className="btn-icon menu-btn"
         onClick={() => setOpen(true)}
       >
         <Icon name="menu" size={20} />
@@ -41,14 +41,14 @@ export function MobileDrawer({
       <div
         aria-hidden
         onClick={() => setOpen(false)}
-        className={`fixed inset-0 z-40 bg-dark/25 transition-opacity ${
+        className={`fixed inset-0 z-40 bg-black/60 transition-opacity ${
           open ? "opacity-100" : "pointer-events-none opacity-0"
         }`}
       />
 
       <aside
         aria-hidden={!open}
-        className={`fixed inset-y-0 left-0 z-50 flex w-[272px] flex-col overflow-y-auto border-r border-line-3 bg-surface p-4 shadow-[0_0_60px_-10px_rgba(16,24,40,.4)] transition-transform duration-200 ${
+        className={`fixed inset-y-0 left-0 z-50 flex w-[272px] flex-col overflow-y-auto border-r border-line-3 bg-surface p-4 shadow-[var(--card-shadow-hover)] transition-transform duration-200 ${
           open ? "translate-x-0" : "-translate-x-[105%]"
         }`}
       >

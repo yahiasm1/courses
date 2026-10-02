@@ -1,6 +1,6 @@
 # Courses store
 
-A simple storefront for selling your courses — a warm off-white desk with a white app shell, an orange accent and Inter Tight type.
+A simple storefront for selling your courses — a dark-first theme (light when the system prefers it) with a violet accent, Rubik and Alexandria type.
 
 - **Landing page = course list**, filterable by category, plus a category grid
 - **Sign up / Sign in** (Supabase Auth, email + password)
