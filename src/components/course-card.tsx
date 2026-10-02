@@ -6,12 +6,12 @@ export function CourseCard({ course }: { course: Course }) {
   return (
     <Link
       href={`/courses/${course.slug}`}
-      className="card group flex flex-col transition duration-200 hover:-translate-y-0.5 hover:shadow-(--shadow-card-hover)"
+      className="card card-hover group flex flex-col"
     >
-      <div className="relative aspect-[4/3] overflow-hidden border-b border-line-3">
+      <div className="relative aspect-video overflow-hidden border-b border-line-3">
         <CourseCover course={course} className="transition duration-300 group-hover:scale-[1.03]" />
         {course.is_featured && (
-          <span className="tag tag-amber absolute left-3 top-3 shadow-[0_1px_2px_rgba(16,24,40,.08)]">
+          <span className="tag tag-amber absolute left-3 top-3 backdrop-blur">
             Featured
           </span>
         )}
@@ -21,14 +21,9 @@ export function CourseCard({ course }: { course: Course }) {
         <h3 className="line-clamp-2 text-[15px] font-semibold leading-snug tracking-[-.01em]">
           {course.name}
         </h3>
-        {course.description && (
-          <p className="line-clamp-2 hidden text-[13px] leading-[1.5] text-muted sm:block">
-            {course.description}
-          </p>
-        )}
       </div>
       <div className="card-foot flex items-center justify-between gap-2 !px-3.5 sm:!px-4">
-        <span className="whitespace-nowrap text-[15px] font-bold tracking-[-.02em]">
+        <span className="price-sm display whitespace-nowrap">
           {formatPrice(course.price)}
         </span>
         <span className="tag tag-green hidden sm:inline-flex">Instant access</span>

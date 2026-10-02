@@ -15,7 +15,7 @@ export default function NotFound() {
         <div className="icon-tile icon-tile-lg icon-tile-grey mx-auto mb-[18px]">
           <Icon name="help" size={26} />
         </div>
-        <h1 className="mb-2 text-[24px] font-bold tracking-[-.025em]">Page not found</h1>
+        <h1 className="h2 display mb-2">Page not found</h1>
         <p className="mb-[22px] text-[15px] leading-[1.5] text-muted">
           The page you&apos;re looking for doesn&apos;t exist or has moved.
         </p>

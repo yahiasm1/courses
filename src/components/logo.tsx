@@ -8,7 +8,7 @@ export function Logo({ size = 34 }: { size?: number }) {
       <span className="brand-mark" style={{ width: size, height: size }}>
         <Icon name="cap" size={Math.round(size * 0.58)} strokeWidth={2} />
       </span>
-      <span className="text-[16px] font-bold tracking-[-.02em]">{SITE_NAME}</span>
+      <span className="display text-[16px]">{SITE_NAME}</span>
     </Link>
   );
 }

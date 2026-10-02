@@ -1,19 +1,32 @@
 import Link from "next/link";
 import type { Category } from "@/lib/types";
 
+type Params = Record<string, string | undefined>;
+
+function withParams(basePath: string, params: Params, category?: string) {
+  const sp = new URLSearchParams();
+  if (category) sp.set("category", category);
+  Object.entries(params).forEach(([k, v]) => v && sp.set(k, v));
+  const qs = sp.toString();
+  return qs ? `${basePath}?${qs}` : basePath;
+}
+
 export function CategoryChips({
   categories,
   active,
   basePath = "/shop",
+  params = {},
   bleed = true,
 }: {
   categories: Category[];
   active?: string;
   basePath?: string;
+  /** Extra query params to keep when switching category (search, price, sort). */
+  params?: Params;
   /** Let the row scroll edge-to-edge on phones (for rows placed directly on the page). */
   bleed?: boolean;
 }) {
-  const chip = (isActive: boolean) => `pill ${isActive ? "pill-active" : ""}`;
+  const chip = (isActive: boolean) => `pill ${isActive ? "pill--active" : ""}`;
 
   return (
     <div
@@ -21,13 +34,13 @@ export function CategoryChips({
         bleed ? "-mx-[18px] px-[18px] sm:mx-0 sm:px-0" : ""
       }`}
     >
-      <Link href={basePath} className={chip(!active)} scroll={false}>
+      <Link href={withParams(basePath, params)} className={chip(!active)} scroll={false}>
         All
       </Link>
       {categories.map((c) => (
         <Link
           key={c.id}
-          href={`${basePath}?category=${c.slug}`}
+          href={withParams(basePath, params, c.slug)}
           className={chip(active === c.slug)}
           scroll={false}
         >

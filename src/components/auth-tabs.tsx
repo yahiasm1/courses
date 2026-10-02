@@ -23,7 +23,7 @@ function AuthTabsInner() {
         <Link
           key={t.href}
           href={`${t.href}${query}`}
-          className={`pill ${pathname === t.href ? "pill-active" : ""}`}
+          className={`pill ${pathname === t.href ? "pill--active" : ""}`}
         >
           {t.name}
         </Link>
