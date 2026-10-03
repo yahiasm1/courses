@@ -23,6 +23,8 @@ export async function buyCourse(formData: FormData) {
     .eq("id", courseId)
     .maybeSingle();
   if (!course) redirect("/");
+  // SlickPay can't bill 0 DA; don't create a purchase that can never be paid.
+  if (!(Number(course.price) > 0)) redirect(`/courses/${slug}?error=price`);
 
   const { data: profile } = await supabase
     .from("profiles")
@@ -60,7 +62,7 @@ export async function buyCourse(formData: FormData) {
       .eq("id", purchase.id);
     paymentUrl = invoice.url;
   } catch (e) {
-    console.error(e);
+    console.error("[checkout] SlickPay invoice failed:", e);
     await admin.from("purchases").update({ status: "failed" }).eq("id", purchase.id);
     redirect(`/courses/${slug}?error=checkout`);
   }

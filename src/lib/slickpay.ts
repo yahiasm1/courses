@@ -2,10 +2,27 @@ import "server-only";
 
 /**
  * Minimal SlickPay client (Invoices API).
- * Docs: https://developers.slick-pay.com/invoices/create
+ * Docs: https://developers.slick-pay.com/authentication
+ *       https://developers.slick-pay.com/invoices/create
  */
 
-const BASE_URL = process.env.SLICKPAY_BASE_URL ?? "https://devapi.slick-pay.com/api/v2";
+const SANDBOX_URL = "https://devapi.slick-pay.com/api/v2";
+/** Public sandbox key published in SlickPay's docs; only valid against the sandbox. */
+const SANDBOX_KEY = "54|BZ7F6N4KwSD46GEXToOv3ZBpJpf7WVxnBzK5cOE6";
+
+const BASE_URL = (process.env.SLICKPAY_BASE_URL?.trim() || SANDBOX_URL).replace(/\/+$/, "");
+const IS_SANDBOX = BASE_URL.includes("devapi.");
+
+/** The PUBLIC_KEY from the SlickPay dashboard, tolerating quotes or a pasted "Bearer " prefix. */
+function apiKey() {
+  const key = (process.env.SLICKPAY_API_KEY ?? "")
+    .trim()
+    .replace(/^["']|["']$/g, "")
+    .replace(/^Bearer\s+/i, "");
+  if (key && key !== "your-slickpay-api-key") return key;
+  if (IS_SANDBOX) return SANDBOX_KEY;
+  throw new Error("SlickPay: SLICKPAY_API_KEY is not set (required for the live API).");
+}
 
 async function slickpay<T>(path: string, init: RequestInit = {}): Promise<T> {
   const res = await fetch(`${BASE_URL}${path}`, {
@@ -13,16 +30,26 @@ async function slickpay<T>(path: string, init: RequestInit = {}): Promise<T> {
     headers: {
       "Content-Type": "application/json",
       Accept: "application/json",
-      Authorization: `Bearer ${process.env.SLICKPAY_API_KEY}`,
+      Authorization: `Bearer ${apiKey()}`,
       ...init.headers,
     },
     cache: "no-store",
+    signal: AbortSignal.timeout(20_000),
   });
 
-  const body = await res.json().catch(() => ({}));
+  const body = (await res.json().catch(() => ({}))) as {
+    message?: string;
+    errors?: Record<string, string[]>;
+  };
   if (!res.ok) {
-    const message = (body as { message?: string }).message ?? res.statusText;
-    throw new Error(`SlickPay ${res.status}: ${message}`);
+    let message = body.message ?? res.statusText;
+    if (body.errors) message += ` ${JSON.stringify(body.errors)}`;
+    if (res.status === 401) {
+      message += IS_SANDBOX
+        ? " (check SLICKPAY_API_KEY: live keys don't work on the sandbox URL)"
+        : " (check SLICKPAY_API_KEY: the sandbox test key doesn't work on the live URL)";
+    }
+    throw new Error(`SlickPay ${res.status} ${init.method ?? "GET"} ${path}: ${message}`);
   }
   return body as T;
 }
@@ -64,10 +91,52 @@ export async function createInvoice(input: CreateInvoiceInput) {
   });
 }
 
-/** Asks SlickPay directly whether an invoice has been paid. */
-export async function isInvoicePaid(invoiceId: string) {
-  const res = await slickpay<{ success: number; completed: number }>(
-    `/users/invoices/${encodeURIComponent(invoiceId)}`,
-  );
-  return Number(res.completed) === 1;
+export type InvoiceStatus = {
+  paid: boolean;
+  amount?: number;
+  /** purchase_id we sent in webhook_meta_data, when SlickPay echoes it back. */
+  purchaseId?: string;
+};
+
+const truthy = (v: unknown) => v === true || v === 1 || v === "1" || v === "true";
+
+function asObject(v: unknown): Record<string, unknown> {
+  if (typeof v === "string") {
+    try {
+      v = JSON.parse(v);
+    } catch {
+      return {};
+    }
+  }
+  return v && typeof v === "object" ? (v as Record<string, unknown>) : {};
+}
+
+/**
+ * Asks SlickPay directly whether an invoice has been paid.
+ * The documented response is `{ success, completed, data }`; `completed` is also
+ * looked for inside `data`, along with a paid-like `status`, in case the shape differs.
+ */
+export async function getInvoiceStatus(invoiceId: string): Promise<InvoiceStatus> {
+  const res = await slickpay<Record<string, unknown>>(`/users/invoices/${encodeURIComponent(invoiceId)}`);
+  const data = asObject(res.data);
+  const status = String(data.status ?? "").toLowerCase();
+  const paid =
+    truthy(res.completed) || truthy(data.completed) || ["paid", "completed", "success"].includes(status);
+
+  if (!paid) {
+    console.info(`[slickpay] invoice ${invoiceId} not paid yet`, {
+      completed: res.completed,
+      dataCompleted: data.completed,
+      status: data.status,
+      keys: Object.keys(data),
+    });
+  }
+
+  const meta = asObject(data.webhook_meta_data ?? data.meta_data);
+  const amount = Number(data.amount);
+  return {
+    paid,
+    amount: Number.isFinite(amount) ? amount : undefined,
+    purchaseId: typeof meta.purchase_id === "string" ? meta.purchase_id : undefined,
+  };
 }
