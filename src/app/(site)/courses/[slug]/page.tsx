@@ -76,6 +76,12 @@ export default async function CoursePage({ params, searchParams }: Props) {
                 <span className="text-[14px] text-muted">one-time</span>
               </div>
 
+              {error === "price" && (
+                <div className="notice notice-red mt-4">
+                  <Icon name="alert" size={18} className="shrink-0 text-red-ink" />
+                  <span>This course isn&apos;t available for purchase yet.</span>
+                </div>
+              )}
               {error === "checkout" && (
                 <div className="notice notice-red mt-4">
                   <Icon name="alert" size={18} className="shrink-0 text-red-ink" />
@@ -89,6 +95,10 @@ export default async function CoursePage({ params, searchParams }: Props) {
                     <Icon name="download" size={18} />
                     Download course
                   </a>
+                ) : !(Number(course.price) > 0) ? (
+                  <button type="button" disabled className="btn btn-primary btn-lg w-full opacity-60">
+                    Not available yet
+                  </button>
                 ) : (
                   <form action={buyCourse} className="flex flex-col gap-2.5">
                     <input type="hidden" name="courseId" value={course.id} />
