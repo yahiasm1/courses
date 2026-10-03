@@ -9,12 +9,13 @@ import { CourseCover } from "@/components/course-cover";
 import { Icon } from "@/components/icons";
 import { buyCourse } from "@/app/actions/checkout";
 import { SubmitButton } from "@/components/submit-button";
+import { IS_SANDBOX } from "@/lib/slickpay";
 
 export const dynamic = "force-dynamic";
 
 type Props = {
   params: Promise<{ slug: string }>;
-  searchParams: Promise<{ error?: string }>;
+  searchParams: Promise<{ error?: string; detail?: string }>;
 };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -24,7 +25,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function CoursePage({ params, searchParams }: Props) {
   const { slug } = await params;
-  const { error } = await searchParams;
+  const { error, detail } = await searchParams;
   const [course, user] = await Promise.all([getCourse(slug), getUser()]);
   if (!course) notFound();
 
@@ -85,7 +86,14 @@ export default async function CoursePage({ params, searchParams }: Props) {
               {error === "checkout" && (
                 <div className="notice notice-red mt-4">
                   <Icon name="alert" size={18} className="shrink-0 text-red-ink" />
-                  <span>We couldn&apos;t start the payment. Please try again in a moment.</span>
+                  <span>
+                    We couldn&apos;t start the payment. Please try again in a moment.
+                    {IS_SANDBOX && detail && (
+                      <span className="mt-1 block break-words font-mono text-[12px] opacity-80">
+                        Test mode: {detail}
+                      </span>
+                    )}
+                  </span>
                 </div>
               )}
 

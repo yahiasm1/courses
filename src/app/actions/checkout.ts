@@ -2,8 +2,14 @@
 
 import { redirect } from "next/navigation";
 import { createAdminClient, createClient } from "@/lib/supabase/server";
-import { createInvoice } from "@/lib/slickpay";
+import { IS_SANDBOX, createInvoice } from "@/lib/slickpay";
 import { hasPurchased } from "@/lib/purchases";
+
+/** Back to the course page with an error; in test mode the reason is shown on the page too. */
+function fail(slug: string, reason: string): never {
+  const detail = IS_SANDBOX ? `&detail=${encodeURIComponent(reason.slice(0, 300))}` : "";
+  redirect(`/courses/${slug}?error=checkout${detail}`);
+}
 
 export async function buyCourse(formData: FormData) {
   const courseId = String(formData.get("courseId") ?? "");
@@ -38,7 +44,10 @@ export async function buyCourse(formData: FormData) {
     .insert({ user_id: user.id, course_id: course.id, amount: course.price })
     .select("id")
     .single();
-  if (error || !purchase) redirect(`/courses/${slug}?error=checkout`);
+  if (error || !purchase) {
+    console.error("[checkout] could not create the purchase row:", error);
+    fail(slug, `Database: ${error?.message ?? "no row returned"}`);
+  }
 
   const site = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
   let paymentUrl: string;
@@ -64,7 +73,7 @@ export async function buyCourse(formData: FormData) {
   } catch (e) {
     console.error("[checkout] SlickPay invoice failed:", e);
     await admin.from("purchases").update({ status: "failed" }).eq("id", purchase.id);
-    redirect(`/courses/${slug}?error=checkout`);
+    fail(slug, e instanceof Error ? e.message : String(e));
   }
 
   redirect(paymentUrl);
