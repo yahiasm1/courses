@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { siteOrigin } from "@/lib/site-origin";
 import { createClient } from "@/lib/supabase/server";
 
 function safeNext(value: FormDataEntryValue | null) {
@@ -22,7 +23,7 @@ export async function login(_: AuthState, formData: FormData): Promise<AuthState
 
 export async function signup(_: AuthState, formData: FormData): Promise<AuthState> {
   const supabase = await createClient();
-  const site = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+  const site = await siteOrigin();
   const next = safeNext(formData.get("next"));
 
   const { data, error } = await supabase.auth.signUp({

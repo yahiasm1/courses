@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { createAdminClient, createClient } from "@/lib/supabase/server";
 import { IS_SANDBOX, createInvoice } from "@/lib/slickpay";
 import { hasPurchased } from "@/lib/purchases";
+import { siteOrigin } from "@/lib/site-origin";
 
 /** Back to the course page with an error; in test mode the reason is shown on the page too. */
 function fail(slug: string, reason: string): never {
@@ -49,7 +50,7 @@ export async function buyCourse(formData: FormData) {
     fail(slug, `Database: ${error?.message ?? "no row returned"}`);
   }
 
-  const site = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+  const site = await siteOrigin();
   let paymentUrl: string;
   try {
     const invoice = await createInvoice({
