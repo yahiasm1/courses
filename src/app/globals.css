@@ -771,18 +771,6 @@ body {
     transform: translateY(-2px);
   }
 
-  .brand-mark {
-    display: flex;
-    width: 34px;
-    height: 34px;
-    flex: 0 0 auto;
-    align-items: center;
-    justify-content: center;
-    border-radius: var(--radius-md);
-    background: linear-gradient(150deg, var(--accent), var(--accent-2));
-    color: #fff;
-    box-shadow: 0 6px 16px var(--accent-shadow);
-  }
   .avatar {
     display: flex;
     width: 38px;
