@@ -11,7 +11,8 @@ const SANDBOX_URL = "https://devapi.slick-pay.com/api/v2";
 const SANDBOX_KEY = "54|BZ7F6N4KwSD46GEXToOv3ZBpJpf7WVxnBzK5cOE6";
 
 const BASE_URL = (process.env.SLICKPAY_BASE_URL?.trim() || SANDBOX_URL).replace(/\/+$/, "");
-const IS_SANDBOX = BASE_URL.includes("devapi.");
+/** True when talking to SlickPay's sandbox (test mode). */
+export const IS_SANDBOX = BASE_URL.includes("devapi.");
 
 /** The PUBLIC_KEY from the SlickPay dashboard, tolerating quotes or a pasted "Bearer " prefix. */
 function apiKey() {
