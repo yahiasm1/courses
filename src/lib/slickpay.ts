@@ -91,10 +91,52 @@ export async function createInvoice(input: CreateInvoiceInput) {
   });
 }
 
-/** Asks SlickPay directly whether an invoice has been paid. */
-export async function isInvoicePaid(invoiceId: string) {
-  const res = await slickpay<{ success: number; completed: number }>(
-    `/users/invoices/${encodeURIComponent(invoiceId)}`,
-  );
-  return Number(res.completed) === 1;
+export type InvoiceStatus = {
+  paid: boolean;
+  amount?: number;
+  /** purchase_id we sent in webhook_meta_data, when SlickPay echoes it back. */
+  purchaseId?: string;
+};
+
+const truthy = (v: unknown) => v === true || v === 1 || v === "1" || v === "true";
+
+function asObject(v: unknown): Record<string, unknown> {
+  if (typeof v === "string") {
+    try {
+      v = JSON.parse(v);
+    } catch {
+      return {};
+    }
+  }
+  return v && typeof v === "object" ? (v as Record<string, unknown>) : {};
+}
+
+/**
+ * Asks SlickPay directly whether an invoice has been paid.
+ * The documented response is `{ success, completed, data }`; `completed` is also
+ * looked for inside `data`, along with a paid-like `status`, in case the shape differs.
+ */
+export async function getInvoiceStatus(invoiceId: string): Promise<InvoiceStatus> {
+  const res = await slickpay<Record<string, unknown>>(`/users/invoices/${encodeURIComponent(invoiceId)}`);
+  const data = asObject(res.data);
+  const status = String(data.status ?? "").toLowerCase();
+  const paid =
+    truthy(res.completed) || truthy(data.completed) || ["paid", "completed", "success"].includes(status);
+
+  if (!paid) {
+    console.info(`[slickpay] invoice ${invoiceId} not paid yet`, {
+      completed: res.completed,
+      dataCompleted: data.completed,
+      status: data.status,
+      keys: Object.keys(data),
+    });
+  }
+
+  const meta = asObject(data.webhook_meta_data ?? data.meta_data);
+  const amount = Number(data.amount);
+  return {
+    paid,
+    amount: Number.isFinite(amount) ? amount : undefined,
+    purchaseId: typeof meta.purchase_id === "string" ? meta.purchase_id : undefined,
+  };
 }

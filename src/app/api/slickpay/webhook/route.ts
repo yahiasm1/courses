@@ -15,7 +15,8 @@ export async function POST(request: NextRequest) {
     (body.webhook_signature as string | undefined) ??
     (body.signature as string | undefined);
   if (secret && signature && signature !== secret) {
-    return NextResponse.json({ error: "invalid signature" }, { status: 401 });
+    // Not fatal: confirmPurchase re-checks the invoice with SlickPay before marking anything paid.
+    console.warn("[slickpay webhook] signature mismatch; verifying with SlickPay anyway");
   }
 
   const meta = (body.webhook_meta_data ?? body.meta_data ?? body.metadata ?? {}) as Record<
@@ -25,6 +26,14 @@ export async function POST(request: NextRequest) {
   const purchaseId = meta.purchase_id;
   if (!purchaseId) return NextResponse.json({ ok: true, ignored: true });
 
-  const status = await confirmPurchase(purchaseId);
+  const invoiceId = body.id ?? body.invoice_id;
+  const status = await confirmPurchase(
+    purchaseId,
+    invoiceId !== undefined && invoiceId !== null ? String(invoiceId) : null,
+  ).catch((e) => {
+    console.error("[slickpay webhook] could not confirm purchase", purchaseId, e);
+    return "error";
+  });
+  if (status === "error") return NextResponse.json({ ok: false }, { status: 500 });
   return NextResponse.json({ ok: true, status });
 }

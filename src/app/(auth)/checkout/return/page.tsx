@@ -2,6 +2,7 @@ import Link from "next/link";
 import { confirmPurchase } from "@/lib/purchases";
 import { getUser } from "@/lib/data";
 import { createClient } from "@/lib/supabase/server";
+import { AutoRefresh } from "@/components/auto-refresh";
 import { Icon } from "@/components/icons";
 
 export const dynamic = "force-dynamic";
@@ -9,9 +10,9 @@ export const dynamic = "force-dynamic";
 export default async function CheckoutReturnPage({
   searchParams,
 }: {
-  searchParams: Promise<{ purchase?: string }>;
+  searchParams: Promise<{ purchase?: string; invoice_id?: string }>;
 }) {
-  const { purchase } = await searchParams;
+  const { purchase, invoice_id } = await searchParams;
   const user = await getUser();
 
   let status: string | null = null;
@@ -19,7 +20,12 @@ export default async function CheckoutReturnPage({
     // Only check purchases that belong to the signed-in user.
     const supabase = await createClient();
     const { data } = await supabase.from("purchases").select("id").eq("id", purchase).maybeSingle();
-    if (data) status = await confirmPurchase(purchase).catch(() => "pending");
+    if (data) {
+      status = await confirmPurchase(purchase, invoice_id).catch((e) => {
+        console.error("[checkout/return] could not confirm purchase", purchase, e);
+        return "pending";
+      });
+    }
   }
 
   const paid = status === "paid";
@@ -37,6 +43,7 @@ export default async function CheckoutReturnPage({
           ? "Your course is ready in My courses."
           : "If you completed the payment, it can take a minute to confirm. Refresh this page or check My courses."}
       </p>
+      {!paid && status !== null && <AutoRefresh />}
       {!paid && (
         <div className="notice notice-grey mb-[18px] justify-center">
           <span>Payments are confirmed with SlickPay before a download link is shown.</span>
