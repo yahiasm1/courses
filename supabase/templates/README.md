@@ -9,5 +9,5 @@ Paste each file into **Supabase → Authentication → Emails → Templates**.
 | Reset password | `reset-password.html` | Reset your password |
 
 They use Supabase's template variables (`{{ .ConfirmationURL }}`, `{{ .Email }}`,
-`{{ .NewEmail }}`, `{{ .SiteURL }}`). Replace "Courses" with your brand name if
-you change `SITE_NAME` in `src/lib/site.ts`.
+`{{ .NewEmail }}`, `{{ .SiteURL }}`). The brand name "Courses DZ" is written into each file; update it there if you
+change `SITE_NAME` in `src/lib/site.ts`.
