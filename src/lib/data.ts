@@ -110,6 +110,13 @@ export async function getCourse(slug: string) {
   return data as unknown as Course | null;
 }
 
+/** The signed-in user's saved phone number (or null). */
+export async function getMyPhone(userId: string) {
+  const supabase = await createClient();
+  const { data } = await supabase.from("profiles").select("phone").eq("id", userId).maybeSingle();
+  return (data?.phone as string | null) ?? null;
+}
+
 export const getUser = cache(async () => {
   const supabase = await createClient();
   const {
