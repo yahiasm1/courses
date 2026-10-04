@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { confirmPurchase } from "@/lib/purchases";
+import { createAdminClient } from "@/lib/supabase/server";
 
 /**
  * SlickPay calls this when an invoice changes. We don't trust the body:
@@ -23,10 +24,20 @@ export async function POST(request: NextRequest) {
     string,
     string
   >;
-  const purchaseId = meta.purchase_id;
+  const invoiceId = body.id ?? body.invoice_id;
+  let purchaseId: string | undefined = meta.purchase_id;
+  if (!purchaseId && invoiceId != null) {
+    // Metadata not echoed back: find the order by the invoice id we stored at checkout.
+    const { data } = await createAdminClient()
+      .from("purchases")
+      .select("id")
+      .eq("slickpay_invoice_id", String(invoiceId))
+      .limit(1)
+      .maybeSingle();
+    purchaseId = data?.id;
+  }
   if (!purchaseId) return NextResponse.json({ ok: true, ignored: true });
 
-  const invoiceId = body.id ?? body.invoice_id;
   const status = await confirmPurchase(
     purchaseId,
     invoiceId !== undefined && invoiceId !== null ? String(invoiceId) : null,

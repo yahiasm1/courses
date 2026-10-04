@@ -10,7 +10,11 @@ const SANDBOX_URL = "https://devapi.slick-pay.com/api/v2";
 /** Public sandbox key published in SlickPay's docs; only valid against the sandbox. */
 const SANDBOX_KEY = "54|BZ7F6N4KwSD46GEXToOv3ZBpJpf7WVxnBzK5cOE6";
 
-const BASE_URL = (process.env.SLICKPAY_BASE_URL?.trim() || SANDBOX_URL).replace(/\/+$/, "");
+// Production must say which SlickPay environment to use: silently falling back to the
+// sandbox there would let anyone "pay" with test cards.
+const BASE_URL = (
+  process.env.SLICKPAY_BASE_URL?.trim() || (process.env.VERCEL_ENV === "production" ? "" : SANDBOX_URL)
+).replace(/\/+$/, "");
 /** True when talking to SlickPay's sandbox (test mode). */
 export const IS_SANDBOX = BASE_URL.includes("devapi.");
 
@@ -26,6 +30,7 @@ function apiKey() {
 }
 
 async function slickpay<T>(path: string, init: RequestInit = {}): Promise<T> {
+  if (!BASE_URL) throw new Error("SlickPay: SLICKPAY_BASE_URL is not set (required in production).");
   const res = await fetch(`${BASE_URL}${path}`, {
     ...init,
     headers: {
@@ -38,13 +43,17 @@ async function slickpay<T>(path: string, init: RequestInit = {}): Promise<T> {
     signal: AbortSignal.timeout(20_000),
   });
 
-  const body = (await res.json().catch(() => ({}))) as {
-    message?: string;
-    errors?: Record<string, string[]>;
-  };
+  const raw = await res.text();
+  let body: { message?: string; errors?: Record<string, string[]> } = {};
+  try {
+    body = JSON.parse(raw);
+  } catch {
+    /* not JSON (e.g. an HTML error page) */
+  }
   if (!res.ok) {
     let message = body.message ?? res.statusText;
     if (body.errors) message += ` ${JSON.stringify(body.errors)}`;
+    if (!body.message && raw) message += ` ${raw.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().slice(0, 200)}`;
     if (res.status === 401) {
       message += IS_SANDBOX
         ? " (check SLICKPAY_API_KEY: live keys don't work on the sandbox URL)"

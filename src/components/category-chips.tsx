@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Category } from "@/lib/types";
+import { getDict } from "@/lib/i18n/server";
 
 type Params = Record<string, string | undefined>;
 
@@ -11,7 +12,7 @@ function withParams(basePath: string, params: Params, category?: string) {
   return qs ? `${basePath}?${qs}` : basePath;
 }
 
-export function CategoryChips({
+export async function CategoryChips({
   categories,
   active,
   basePath = "/shop",
@@ -26,6 +27,7 @@ export function CategoryChips({
   /** Let the row scroll edge-to-edge on phones (for rows placed directly on the page). */
   bleed?: boolean;
 }) {
+  const { t } = await getDict();
   const chip = (isActive: boolean) => `pill ${isActive ? "pill--active" : ""}`;
 
   return (
@@ -35,7 +37,7 @@ export function CategoryChips({
       }`}
     >
       <Link href={withParams(basePath, params)} className={chip(!active)} scroll={false}>
-        All
+        {t.shop.all}
       </Link>
       {categories.map((c) => (
         <Link

@@ -3,13 +3,15 @@ import { CategoriesMenu } from "@/components/categories-menu";
 import { Icon } from "@/components/icons";
 import { Logo } from "@/components/logo";
 import { MobileSearch } from "@/components/mobile-search";
+import { LanguageSwitch } from "@/components/language-switch";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { logout } from "@/app/actions/auth";
 import { getCartIds } from "@/lib/cart";
 import { getCategories, getUser } from "@/lib/data";
+import { getDict } from "@/lib/i18n/server";
 
 export async function SiteHeader() {
-  const [user, categories, cart] = await Promise.all([getUser(), getCategories(), getCartIds()]);
+  const [user, categories, cart, { t }] = await Promise.all([getUser(), getCategories(), getCartIds(), getDict()]);
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-[var(--border)] bg-[var(--bg)] md:bg-[var(--bg)]/95 md:backdrop-blur-lg md:supports-[backdrop-filter]:bg-[var(--bg)]/85">
@@ -18,9 +20,9 @@ export async function SiteHeader() {
           <Logo size={30} />
         </div>
 
-        <nav className="hidden shrink-0 items-center gap-1 lg:flex" aria-label="Shop">
+        <nav className="hidden shrink-0 items-center gap-1 lg:flex" aria-label={t.nav.shop}>
           <Link href="/shop" className="hdr-link shell-focus">
-            All courses
+            {t.nav.allCourses}
           </Link>
           <CategoriesMenu categories={categories} />
         </nav>
@@ -37,13 +39,13 @@ export async function SiteHeader() {
               autoComplete="off"
               spellCheck={false}
               enterKeyHint="search"
-              aria-label="Search"
-              placeholder="Search a course, a topic…"
+              aria-label={t.nav.search}
+              placeholder={t.nav.searchPlaceholder}
               className="min-w-0 flex-1 border-none bg-transparent text-[0.8rem] text-[var(--text)] outline-none placeholder:text-[var(--text-soft)] [&::-webkit-search-cancel-button]:appearance-none"
             />
             <button
               type="submit"
-              aria-label="Search"
+              aria-label={t.nav.search}
               className="flex size-7 shrink-0 items-center justify-center rounded-[var(--radius-md)] text-[var(--text-soft)] transition-colors hover:bg-[var(--surface-raised)] hover:text-[var(--text)]"
             >
               <Icon name="search" size={14} />
@@ -51,12 +53,12 @@ export async function SiteHeader() {
           </form>
         </div>
 
-        <div className="ms-auto flex shrink-0 items-center gap-1.5 md:gap-2">
+        <div className="ms-auto flex shrink-0 items-center gap-1 sm:gap-1.5 md:gap-2">
           <MobileSearch />
           <Link
             href="/cart"
-            aria-label={`Cart, ${cart.length} ${cart.length === 1 ? "item" : "items"}`}
-            title="Cart"
+            aria-label={t.nav.cartItems(cart.length)}
+            title={t.nav.cart}
             className="hdr-icon shell-focus relative"
           >
             <Icon name="cart" size={18} />
@@ -66,21 +68,22 @@ export async function SiteHeader() {
               </span>
             )}
           </Link>
+          <LanguageSwitch />
           <ThemeToggle className="hidden md:inline-flex" />
 
           {user ? (
             <>
               <Link
                 href="/library"
-                aria-label="My courses"
-                title="My courses"
+                aria-label={t.nav.myCourses}
+                title={t.nav.myCourses}
                 className="hdr-link shell-focus px-2.5 text-[0.8rem]"
               >
                 <Icon name="book" size={18} />
-                <span className="hidden lg:inline">My courses</span>
+                <span className="hidden lg:inline">{t.nav.myCourses}</span>
               </Link>
               <form action={logout} className="hidden lg:inline-flex">
-                <button type="submit" aria-label="Sign out" title="Sign out" className="hdr-icon shell-focus">
+                <button type="submit" aria-label={t.nav.signOut} title={t.nav.signOut} className="hdr-icon shell-focus">
                   <Icon name="logout" size={18} />
                 </button>
               </form>
@@ -89,14 +92,14 @@ export async function SiteHeader() {
             <>
               <Link
                 href="/login"
-                aria-label="Sign in"
+                aria-label={t.nav.signIn}
                 className="hdr-link shell-focus hidden px-2.5 text-[0.8rem] lg:inline-flex"
               >
                 <Icon name="user" size={18} />
-                <span>Sign in</span>
+                <span>{t.nav.signIn}</span>
               </Link>
-              <Link href="/signup" className="btn btn-primary h-9 text-[0.8rem]">
-                Sign up
+              <Link href="/signup" className="btn btn-primary h-9 whitespace-nowrap px-3 text-[0.8rem] sm:px-4">
+                {t.nav.signUp}
               </Link>
             </>
           )}

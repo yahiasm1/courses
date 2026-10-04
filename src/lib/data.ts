@@ -99,13 +99,22 @@ export async function searchCourses(opts: CourseQuery = {}): Promise<CoursePage>
 
 export async function getCourse(slug: string) {
   const supabase = await createClient();
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("courses")
     .select(COURSE_COLUMNS)
     .eq("slug", slug)
     .eq("is_published", true)
     .maybeSingle();
+  // A database error must not look like "course not found" (404).
+  if (error) throw error;
   return data as unknown as Course | null;
+}
+
+/** The signed-in user's saved phone number (or null). */
+export async function getMyPhone(userId: string) {
+  const supabase = await createClient();
+  const { data } = await supabase.from("profiles").select("phone").eq("id", userId).maybeSingle();
+  return (data?.phone as string | null) ?? null;
 }
 
 export const getUser = cache(async () => {

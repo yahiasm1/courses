@@ -24,7 +24,3 @@ export type Course = {
 /** Columns anon/authenticated are allowed to select (see supabase/schema.sql). */
 export const COURSE_COLUMNS =
   "id, name, slug, description, image_url, price, sales_page_url, category_id, is_featured, created_at, category:categories(name, slug)";
-
-export function formatPrice(price: number) {
-  return `${new Intl.NumberFormat("en-US").format(Number(price))} DA`;
-}

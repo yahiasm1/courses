@@ -1,12 +1,14 @@
-# Courses store
+# Courses DZ
 
-A simple storefront for selling your courses — a dark-first theme (light when the system prefers it) with a violet accent, Rubik and Alexandria type.
+Storefront for [coursesdz.com](https://coursesdz.com): a dark-first theme (light when the system prefers it) with a violet accent, Rubik and Alexandria type.
 
 - **Landing page** — niche hero carousel, popular niches, then every course with pagination
 - **All courses** (`/shop`) — search, filter by niche and price range, sort, pagination
 - **Sign up / Sign in** (Supabase Auth, email + password)
-- **Course page** — name, description, price, link to the external sales page, Buy button
-- **SlickPay checkout** (CIB / Edahabia) → the course appears in **My courses** with its download link
+- **Course page** — name, description, price, link to the external sales page, Buy now and Add to cart
+- **Cart** (`/cart`) — several courses in one SlickPay payment, with promo codes (`WELCOME10`: 10% off the first order; codes live in `src/lib/promo.ts`)
+- **SlickPay checkout** (CIB / Edahabia) → the courses appear in **My courses** with their download links
+- **Emails** via Resend — welcome email with the promo code, purchase receipt, new-sale notice
 - Download links are **never sent to the browser** unless the user has paid
 
 Stack: Next.js 15 (App Router) · Tailwind CSS 4 · Supabase · SlickPay Invoices API.
@@ -14,7 +16,8 @@ Stack: Next.js 15 (App Router) · Tailwind CSS 4 · Supabase · SlickPay Invoice
 ## 1. Supabase
 
 1. Create a project at [supabase.com](https://supabase.com).
-2. Open **SQL Editor** and run [`supabase/schema.sql`](supabase/schema.sql). It creates:
+2. Open **SQL Editor** and run [`supabase/schema.sql`](supabase/schema.sql) (structure and security only;
+   [`supabase/seed.sql`](supabase/seed.sql) holds demo courses for a test database — never run it on production). It creates:
 
 | Table | Columns |
 | --- | --- |
@@ -55,5 +58,21 @@ Deploy to Vercel (or any Node host) with the same environment variables. The sit
 
 ## Customize
 
-- Brand name, tagline, contact email: `src/lib/site.ts`
+- Brand name, tagline, contact email, site URL, Telegram link: `src/lib/site.ts`
+- Promo codes: `src/lib/promo.ts`
+- Emails: `src/lib/welcome-email.ts`, `src/lib/purchase-emails.ts`; Supabase auth emails: paste [`supabase/templates`](supabase/templates)
 - Colours, radii and shadows: design tokens at the top of `src/app/globals.css` (component classes such as `.card`, `.btn-primary`, `.pill` live further down)
+
+## Launch checklist
+
+- **Vercel → Environment Variables** (Production): `SLICKPAY_BASE_URL=https://prodapi.slick-pay.com/api/v2`
+  and your live `SLICKPAY_API_KEY` (production refuses to start payments without `SLICKPAY_BASE_URL`);
+  a long random `SLICKPAY_WEBHOOK_SECRET`; `NEXT_PUBLIC_SITE_URL=https://coursesdz.com`;
+  `RESEND_API_KEY`, `EMAIL_FROM`, `NOTIFY_EMAIL`.
+- **Vercel → Domains**: `coursesdz.com` primary; `www` and `*.vercel.app` redirect to it.
+- **Supabase → Auth → URL Configuration**: Site URL `https://coursesdz.com`; Redirect URLs only
+  `https://coursesdz.com/auth/callback`. Paste the templates from `supabase/templates`.
+- **Resend**: verify the `coursesdz.com` domain.
+- Set real prices (0 DA courses can't be bought) and run `supabase/categorize_courses.sql` once
+  (it targets this project's course and category ids).
+- Place a real order end-to-end and check the receipt email and My courses.

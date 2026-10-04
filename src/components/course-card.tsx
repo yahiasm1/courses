@@ -1,8 +1,11 @@
 import Link from "next/link";
-import { formatPrice, type Course } from "@/lib/types";
+import type { Course } from "@/lib/types";
+import { formatPrice } from "@/lib/i18n";
+import { getDict } from "@/lib/i18n/server";
 import { CourseCover } from "@/components/course-cover";
 
-export function CourseCard({ course }: { course: Course }) {
+export async function CourseCard({ course }: { course: Course }) {
+  const { locale, t } = await getDict();
   return (
     <Link
       href={`/courses/${course.slug}`}
@@ -11,32 +14,33 @@ export function CourseCard({ course }: { course: Course }) {
       <div className="relative aspect-video overflow-hidden border-b border-line-3">
         <CourseCover course={course} className="transition duration-300 group-hover:scale-[1.03]" />
         {course.is_featured && (
-          <span className="tag tag-amber absolute left-3 top-3 backdrop-blur">
-            Featured
+          <span className="tag tag-amber absolute start-3 top-3 backdrop-blur">
+            {t.card.featured}
           </span>
         )}
       </div>
       <div className="flex flex-1 flex-col gap-1.5 p-3.5 sm:p-4">
         {course.category && <span className="eyebrow truncate">{course.category.name}</span>}
-        <h3 className="line-clamp-2 text-[15px] font-semibold leading-snug tracking-[-.01em]">
+        <h3 dir="auto" className="line-clamp-2 text-[15px] font-semibold leading-snug tracking-[-.01em]">
           {course.name}
         </h3>
       </div>
       <div className="card-foot flex items-center justify-between gap-2 !px-3.5 sm:!px-4">
         <span className="price-sm display whitespace-nowrap">
-          {formatPrice(course.price)}
+          {formatPrice(course.price, locale)}
         </span>
-        <span className="tag tag-green hidden sm:inline-flex">Instant access</span>
+        <span className="tag tag-green hidden sm:inline-flex">{t.card.instant}</span>
       </div>
     </Link>
   );
 }
 
-export function CourseGrid({ courses }: { courses: Course[] }) {
+export async function CourseGrid({ courses }: { courses: Course[] }) {
   if (courses.length === 0) {
+    const { t } = await getDict();
     return (
       <div className="rounded-[16px] border border-dashed border-line bg-surface p-12 text-center text-[14.5px] text-muted">
-        No courses here yet.
+        {t.card.empty}
       </div>
     );
   }

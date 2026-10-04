@@ -1,22 +1,20 @@
 import { Icon, type IconName } from "@/components/icons";
+import { getDict } from "@/lib/i18n/server";
 
-const items: { icon: IconName; title: string; text: string }[] = [
-  { icon: "flash", title: "Instant access", text: "Your download link appears right after payment." },
-  { icon: "shield", title: "Secure payment", text: "Pay with CIB or Edahabia through SlickPay." },
-  { icon: "book", title: "Lifetime access", text: "Every purchase stays in My courses." },
-  { icon: "help", title: "Support", text: "Questions? Reach out anytime." },
-];
+const icons: IconName[] = ["flash", "shield", "book", "help"];
 
-export function TrustStrip() {
+export async function TrustStrip() {
+  const { t } = await getDict();
+  const items = t.trust.map((item, i) => ({ ...item, icon: icons[i] }));
   return (
     <section className="card">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
         {items.map((i, idx) => (
           <div
-            key={i.title}
+            key={i.icon}
             className={`flex gap-3 p-[18px] ${
-              idx < items.length - 1 ? "border-b border-line-3 lg:border-b-0 lg:border-r" : ""
-            } ${idx === 0 ? "sm:border-r" : ""} ${idx === 2 ? "sm:border-r" : ""}`}
+              idx < items.length - 1 ? "border-b border-line-3 lg:border-b-0 lg:border-e" : ""
+            } ${idx === 0 ? "sm:border-e" : ""} ${idx === 2 ? "sm:border-e" : ""}`}
           >
             <div className="icon-tile">
               <Icon name={i.icon} size={17} />
