@@ -7,7 +7,16 @@ import { Icon } from "@/components/icons";
 import { SubmitButton } from "@/components/submit-button";
 import { useI18n } from "@/components/i18n-provider";
 
-export function AuthForm({ mode, next }: { mode: "login" | "signup"; next?: string }) {
+export function AuthForm({
+  mode,
+  next,
+  confirmed = false,
+}: {
+  mode: "login" | "signup";
+  next?: string;
+  /** Arrived from an email-confirmation link that couldn't sign them in directly. */
+  confirmed?: boolean;
+}) {
   const [state, action] = useActionState<AuthState, FormData>(
     mode === "login" ? login : signup,
     undefined,
@@ -25,6 +34,13 @@ export function AuthForm({ mode, next }: { mode: "login" | "signup"; next?: stri
       <p className="mb-6 text-[15px] text-muted">
         {isSignup ? a.createText : a.signInText}
       </p>
+
+      {confirmed && !state && (
+        <div className="notice notice-green mb-4">
+          <Icon name="checkCircle" size={18} className="shrink-0" />
+          <span>{a.emailConfirmed}</span>
+        </div>
+      )}
 
       <form action={action} className="flex flex-col gap-3.5">
         <input type="hidden" name="next" value={next ?? "/"} />
