@@ -62,7 +62,7 @@ export function AuthForm({
             </div>
             <div>
               <label className="label" htmlFor="phone">
-                {a.phone}
+                {a.phone} <span className="font-normal text-muted">({a.optional})</span>
               </label>
               <input
                 id="phone"
@@ -70,7 +70,7 @@ export function AuthForm({
                 type="tel"
                 placeholder="0555 12 34 56"
                 dir="ltr"
-                required
+                autoComplete="tel"
                 className="input"
               />
             </div>

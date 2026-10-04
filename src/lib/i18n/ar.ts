@@ -147,6 +147,9 @@ export const ar: Dict = {
     secure: "دفع آمن بـ CIB / الذهبية عبر SlickPay",
     instant: "وصول فوري",
     about: "عن هذه الدورة",
+    phoneLabel: "رقم الهاتف (مطلوب للدفع)",
+    phoneHint: "رقم جزائري، مثال: 0555 12 34 56. سيُحفظ في حسابك.",
+    phoneError: "أدخل رقم هاتف جزائري صحيح (مثال: 0555 12 34 56) لإتمام الدفع.",
   },
 
   cart: {
@@ -209,6 +212,7 @@ export const ar: Dict = {
     firstName: "الاسم",
     lastName: "اللقب",
     phone: "رقم الهاتف",
+    optional: "اختياري",
     email: "البريد الإلكتروني",
     password: "كلمة المرور",
     passwordHint: "6 أحرف على الأقل",

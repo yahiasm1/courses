@@ -7,7 +7,9 @@ import { CourseCover } from "@/components/course-cover";
 import { Icon } from "@/components/icons";
 import { SubmitButton } from "@/components/submit-button";
 import { getCartCourses, getCartIds, getPromoCode, ownedIds, validatePromo } from "@/lib/cart";
-import { getUser } from "@/lib/data";
+import { getMyPhone, getUser } from "@/lib/data";
+import { normalizeDzPhone } from "@/lib/phone";
+import { PhoneField } from "@/components/phone-field";
 import { discounted } from "@/lib/promo";
 import { IS_SANDBOX } from "@/lib/slickpay";
 import { formatPrice } from "@/lib/i18n";
@@ -35,6 +37,7 @@ export default async function CartPage({
     validatePromo(promoCode, user?.id ?? null),
   ]);
 
+  const needsPhone = Boolean(user) && !normalizeDzPhone(user ? await getMyPhone(user.id) : null);
   const payable = courses.filter((c) => !owned.has(c.id) && Number(c.price) > 0);
   const subtotal = payable.reduce((sum, c) => sum + Number(c.price), 0);
   const total = payable.reduce((sum, c) => sum + discounted(Number(c.price), promo), 0);
@@ -50,7 +53,11 @@ export default async function CartPage({
         <div className="notice notice-red">
           <Icon name="alert" size={18} className="shrink-0 text-red-ink" />
           <span>
-            {error === "empty" || error === "price" ? c.nothingToBuy : c.checkoutError}
+            {error === "phone"
+              ? t.course.phoneError
+              : error === "empty" || error === "price"
+                ? c.nothingToBuy
+                : c.checkoutError}
             {IS_SANDBOX && detail && (
               <span className="mt-1 block break-words font-mono text-[12px] opacity-80">
                 {t.course.testMode}: {detail}
@@ -203,7 +210,8 @@ export default async function CartPage({
               </dl>
 
               {payable.length > 0 ? (
-                <form action={checkoutCart}>
+                <form action={checkoutCart} className="flex flex-col gap-3">
+                  {needsPhone && <PhoneField />}
                   <SubmitButton pendingLabel={t.course.redirecting}>
                     {user ? c.checkout(price(total)) : c.signInToCheckout}
                   </SubmitButton>

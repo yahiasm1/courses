@@ -43,13 +43,17 @@ async function slickpay<T>(path: string, init: RequestInit = {}): Promise<T> {
     signal: AbortSignal.timeout(20_000),
   });
 
-  const body = (await res.json().catch(() => ({}))) as {
-    message?: string;
-    errors?: Record<string, string[]>;
-  };
+  const raw = await res.text();
+  let body: { message?: string; errors?: Record<string, string[]> } = {};
+  try {
+    body = JSON.parse(raw);
+  } catch {
+    /* not JSON (e.g. an HTML error page) */
+  }
   if (!res.ok) {
     let message = body.message ?? res.statusText;
     if (body.errors) message += ` ${JSON.stringify(body.errors)}`;
+    if (!body.message && raw) message += ` ${raw.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().slice(0, 200)}`;
     if (res.status === 401) {
       message += IS_SANDBOX
         ? " (check SLICKPAY_API_KEY: live keys don't work on the sandbox URL)"

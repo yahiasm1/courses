@@ -6,6 +6,7 @@ import { createAdminClient, createClient } from "@/lib/supabase/server";
 import { IS_SANDBOX, createInvoice } from "@/lib/slickpay";
 import { PROMO_COOKIE, getCartIds, getPromoCode, ownedIds, validatePromo } from "@/lib/cart";
 import { discounted } from "@/lib/promo";
+import { normalizeDzPhone } from "@/lib/phone";
 import { siteOrigin } from "@/lib/site-origin";
 
 /** Back to `back` with an error; in test mode the reason is shown on the page too. */
@@ -19,7 +20,10 @@ function fail(back: string, reason: string): never {
  * them all, then returns the payment URL. The first purchase id identifies the
  * order on the return page and in the webhook.
  */
-async function startCheckout(courseIds: string[], opts: { back: string; promoCode?: string | null }) {
+async function startCheckout(
+  courseIds: string[],
+  opts: { back: string; promoCode?: string | null; phone?: string | null },
+) {
   const supabase = await createClient();
   const {
     data: { user },
@@ -53,6 +57,15 @@ async function startCheckout(courseIds: string[], opts: { back: string; promoCod
     .eq("id", user.id)
     .maybeSingle();
 
+  // SlickPay needs a real phone number. Use the one typed at checkout (and save it),
+  // else the profile's; without either, send the buyer back to enter one.
+  const typedPhone = normalizeDzPhone(opts.phone);
+  const phone = typedPhone ?? normalizeDzPhone(profile?.phone);
+  if (!phone) redirect(`${opts.back}?error=phone`);
+  if (typedPhone && typedPhone !== profile?.phone) {
+    await supabase.from("profiles").update({ phone: typedPhone }).eq("id", user.id);
+  }
+
   const admin = createAdminClient();
   // A new checkout replaces any unpaid one for the same courses (second tab, Back button).
   // If an old invoice is still paid later, confirmation honours it anyway.
@@ -83,7 +96,7 @@ async function startCheckout(courseIds: string[], opts: { back: string; promoCod
       firstname: profile?.first_name || "Customer",
       lastname: profile?.last_name || "-",
       email: user.email ?? "",
-      phone: profile?.phone || "0000000000",
+      phone,
       address: "Algeria",
       items: lines.map((l) => ({
         name: promo ? `${l.course.name} (${promo.code} -${promo.percent}%)` : l.course.name,
@@ -99,7 +112,14 @@ async function startCheckout(courseIds: string[], opts: { back: string; promoCod
     if (saveError) throw new Error(`Database: could not save invoice ${invoice.id}: ${saveError.message}`);
     return invoice.url;
   } catch (e) {
-    console.error("[checkout] SlickPay invoice failed:", e);
+    console.error("[checkout] SlickPay invoice failed:", e, {
+      amount: total,
+      items: lines.length,
+      promo: promo?.code ?? null,
+      hasName: Boolean(profile?.first_name && profile?.last_name),
+      hasEmail: Boolean(user.email),
+      account: process.env.SLICKPAY_ACCOUNT_UUID ? "set" : "default",
+    });
     await admin.from("purchases").update({ status: "failed" }).in("id", ids);
     fail(opts.back, e instanceof Error ? e.message : String(e));
   }
@@ -109,7 +129,10 @@ async function startCheckout(courseIds: string[], opts: { back: string; promoCod
 export async function buyCourse(formData: FormData) {
   const courseId = String(formData.get("courseId") ?? "");
   const slug = String(formData.get("slug") ?? "");
-  const url = await startCheckout([courseId], { back: `/courses/${slug}` });
+  const url = await startCheckout([courseId], {
+    back: `/courses/${slug}`,
+    phone: formData.get("phone") as string | null,
+  });
   redirect(url);
 }
 
@@ -117,9 +140,13 @@ export async function buyCourse(formData: FormData) {
  * Checkout of everything in the cart, with the applied promo code. The cart is kept
  * until payment is confirmed (see pruneCart), so cancelling on SlickPay loses nothing.
  */
-export async function checkoutCart() {
+export async function checkoutCart(formData: FormData) {
   const ids = await getCartIds();
   if (!ids.length) redirect("/cart");
-  const url = await startCheckout(ids, { back: "/cart", promoCode: await getPromoCode() });
+  const url = await startCheckout(ids, {
+    back: "/cart",
+    promoCode: await getPromoCode(),
+    phone: formData.get("phone") as string | null,
+  });
   redirect(url);
 }

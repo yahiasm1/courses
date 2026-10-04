@@ -139,6 +139,9 @@ export const en = {
     secure: "Secure payment with CIB / Edahabia via SlickPay",
     instant: "Instant access",
     about: "About this course",
+    phoneLabel: "Phone number (needed for the payment)",
+    phoneHint: "Algerian number, e.g. 0555 12 34 56. Saved to your account.",
+    phoneError: "Enter a valid Algerian phone number (e.g. 0555 12 34 56) to pay.",
   },
 
   cart: {
@@ -201,6 +204,7 @@ export const en = {
     firstName: "First name",
     lastName: "Last name",
     phone: "Phone",
+    optional: "optional",
     email: "Email",
     password: "Password",
     passwordHint: "At least 6 characters",

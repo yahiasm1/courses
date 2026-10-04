@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getCourse, getUser } from "@/lib/data";
+import { getCourse, getMyPhone, getUser } from "@/lib/data";
+import { normalizeDzPhone } from "@/lib/phone";
+import { PhoneField } from "@/components/phone-field";
 import { hasPurchased } from "@/lib/purchases";
 import { formatPrice } from "@/lib/i18n";
 import { getDict } from "@/lib/i18n/server";
@@ -43,10 +45,12 @@ export default async function CoursePage({ params, searchParams }: Props) {
   const c = t.course;
   if (!course) notFound();
 
-  const [owned, cart] = await Promise.all([
+  const [owned, cart, phone] = await Promise.all([
     user ? hasPurchased(user.id, course.id) : false,
     getCartIds(),
+    user ? getMyPhone(user.id) : null,
   ]);
+  const needsPhone = Boolean(user) && !normalizeDzPhone(phone);
   const inCart = cart.includes(course.id);
 
   return (
@@ -95,6 +99,12 @@ export default async function CoursePage({ params, searchParams }: Props) {
                 <span className="text-[14px] text-muted">{c.oneTime}</span>
               </div>
 
+              {error === "phone" && (
+                <div className="notice notice-red mt-4">
+                  <Icon name="alert" size={18} className="shrink-0 text-red-ink" />
+                  <span>{c.phoneError}</span>
+                </div>
+              )}
               {error === "price" && (
                 <div className="notice notice-red mt-4">
                   <Icon name="alert" size={18} className="shrink-0 text-red-ink" />
@@ -129,6 +139,7 @@ export default async function CoursePage({ params, searchParams }: Props) {
                   <form action={buyCourse} className="flex flex-col gap-2.5">
                     <input type="hidden" name="courseId" value={course.id} />
                     <input type="hidden" name="slug" value={course.slug} />
+                    {needsPhone && <PhoneField />}
                     <SubmitButton pendingLabel={c.redirecting}>
                       {user ? c.buyNow(formatPrice(course.price, locale)) : c.signInToBuy}
                     </SubmitButton>
