@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { siteOrigin } from "@/lib/site-origin";
 import { createClient } from "@/lib/supabase/server";
+import { sendWelcomeEmailOnce } from "@/lib/welcome-email";
 
 function safeNext(value: FormDataEntryValue | null) {
   const next = String(value ?? "/");
@@ -44,6 +45,8 @@ export async function signup(_: AuthState, formData: FormData): Promise<AuthStat
   if (!data.session) {
     return { message: "Check your inbox to confirm your email, then sign in." };
   }
+  // Email confirmation disabled → the account is live now.
+  await sendWelcomeEmailOnce(data.user, site);
   redirect(next);
 }
 

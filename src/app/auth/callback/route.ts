@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { sendWelcomeEmailOnce } from "@/lib/welcome-email";
 
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = request.nextUrl;
@@ -9,7 +10,9 @@ export async function GET(request: NextRequest) {
 
   if (code) {
     const supabase = await createClient();
-    await supabase.auth.exchangeCodeForSession(code);
+    const { data } = await supabase.auth.exchangeCodeForSession(code);
+    // First visit after confirming the sign-up email → send the welcome email.
+    await sendWelcomeEmailOnce(data.user, origin);
   }
   return NextResponse.redirect(`${origin}${next}`);
 }
