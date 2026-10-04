@@ -8,13 +8,16 @@ import { Container } from "@/components/container";
 import { CourseCover } from "@/components/course-cover";
 import { Icon } from "@/components/icons";
 import { buyCourse } from "@/app/actions/checkout";
+import { addToCart } from "@/app/actions/cart";
+import { getCartIds } from "@/lib/cart";
 import { SubmitButton } from "@/components/submit-button";
+import { IS_SANDBOX } from "@/lib/slickpay";
 
 export const dynamic = "force-dynamic";
 
 type Props = {
   params: Promise<{ slug: string }>;
-  searchParams: Promise<{ error?: string }>;
+  searchParams: Promise<{ error?: string; detail?: string }>;
 };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -24,11 +27,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function CoursePage({ params, searchParams }: Props) {
   const { slug } = await params;
-  const { error } = await searchParams;
+  const { error, detail } = await searchParams;
   const [course, user] = await Promise.all([getCourse(slug), getUser()]);
   if (!course) notFound();
 
-  const owned = user ? await hasPurchased(user.id, course.id) : false;
+  const [owned, cart] = await Promise.all([
+    user ? hasPurchased(user.id, course.id) : false,
+    getCartIds(),
+  ]);
+  const inCart = cart.includes(course.id);
 
   return (
     <Container className="flex flex-col gap-4">
@@ -85,7 +92,14 @@ export default async function CoursePage({ params, searchParams }: Props) {
               {error === "checkout" && (
                 <div className="notice notice-red mt-4">
                   <Icon name="alert" size={18} className="shrink-0 text-red-ink" />
-                  <span>We couldn&apos;t start the payment. Please try again in a moment.</span>
+                  <span>
+                    We couldn&apos;t start the payment. Please try again in a moment.
+                    {IS_SANDBOX && detail && (
+                      <span className="mt-1 block break-words font-mono text-[12px] opacity-80">
+                        Test mode: {detail}
+                      </span>
+                    )}
+                  </span>
                 </div>
               )}
 
@@ -108,6 +122,21 @@ export default async function CoursePage({ params, searchParams }: Props) {
                     </SubmitButton>
                   </form>
                 )}
+                {!owned && Number(course.price) > 0 &&
+                  (inCart ? (
+                    <Link href="/cart" className="btn btn-secondary btn-lg w-full">
+                      <Icon name="check" size={17} strokeWidth={2.4} />
+                      In your cart · View cart
+                    </Link>
+                  ) : (
+                    <form action={addToCart}>
+                      <input type="hidden" name="courseId" value={course.id} />
+                      <SubmitButton pendingLabel="Adding…" variant="secondary">
+                        <Icon name="cart" size={17} />
+                        Add to cart
+                      </SubmitButton>
+                    </form>
+                  ))}
                 {course.sales_page_url && (
                   <a
                     href={course.sales_page_url}

@@ -11,7 +11,8 @@ const SANDBOX_URL = "https://devapi.slick-pay.com/api/v2";
 const SANDBOX_KEY = "54|BZ7F6N4KwSD46GEXToOv3ZBpJpf7WVxnBzK5cOE6";
 
 const BASE_URL = (process.env.SLICKPAY_BASE_URL?.trim() || SANDBOX_URL).replace(/\/+$/, "");
-const IS_SANDBOX = BASE_URL.includes("devapi.");
+/** True when talking to SlickPay's sandbox (test mode). */
+export const IS_SANDBOX = BASE_URL.includes("devapi.");
 
 /** The PUBLIC_KEY from the SlickPay dashboard, tolerating quotes or a pasted "Bearer " prefix. */
 function apiKey() {
@@ -63,7 +64,8 @@ export type CreateInvoiceInput = {
   email: string;
   phone: string;
   address: string;
-  itemName: string;
+  /** Invoice lines; their prices must add up to `amount`. */
+  items: { name: string; price: number }[];
   metadata: Record<string, string>;
 };
 
@@ -76,7 +78,7 @@ export async function createInvoice(input: CreateInvoiceInput) {
     email: input.email,
     phone: input.phone,
     address: input.address,
-    items: [{ name: input.itemName, price: input.amount, quantity: 1 }],
+    items: input.items.map((i) => ({ name: i.name, price: i.price, quantity: 1 })),
     webhook_url: input.webhookUrl,
     webhook_signature: process.env.SLICKPAY_WEBHOOK_SECRET,
     webhook_meta_data: input.metadata,

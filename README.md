@@ -24,8 +24,8 @@ Stack: Next.js 15 (App Router) · Tailwind CSS 4 · Supabase · SlickPay Invoice
 | `purchases` | `id`, `user_id`, `course_id`, `amount`, `status` (`pending`/`paid`/`failed`), `slickpay_invoice_id`, `paid_at` |
 
    It also enables Row Level Security and hides the `download_url` column from public roles.
-3. **Authentication → URL Configuration**: set *Site URL* to your domain and add
-   `https://your-domain.com/auth/callback` to *Redirect URLs*.
+3. **Authentication → URL Configuration**: set *Site URL* to `https://coursesdz.com` and add
+   `https://coursesdz.com/auth/callback` to *Redirect URLs*.
 
 Add and edit courses/categories directly in the Supabase **Table Editor**.
 
@@ -50,8 +50,8 @@ npm install
 npm run dev                  # http://localhost:3000
 ```
 
-Deploy to Vercel (or any Node host) with the same environment variables, and set
-`NEXT_PUBLIC_SITE_URL` to your public URL so SlickPay can reach the webhook.
+Deploy to Vercel (or any Node host) with the same environment variables. The site lives at
+`https://coursesdz.com` (`SITE_URL` in `src/lib/site.ts`, overridable with `NEXT_PUBLIC_SITE_URL`).
 
 ## Customize
 
