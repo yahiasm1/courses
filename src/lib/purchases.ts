@@ -9,7 +9,6 @@ type PurchaseRow = {
   status: string;
   amount: number;
   slickpay_invoice_id: string | null;
-  course: { name: string } | null;
 };
 
 /**
@@ -24,7 +23,7 @@ export async function confirmPurchase(purchaseId: string, invoiceHint?: string |
   const admin = createAdminClient();
   const { data } = await admin
     .from("purchases")
-    .select("id, user_id, status, amount, slickpay_invoice_id, course:courses(name)")
+    .select("id, user_id, status, amount, slickpay_invoice_id")
     .eq("id", purchaseId)
     .maybeSingle();
   const purchase = data as unknown as PurchaseRow | null;
@@ -49,24 +48,31 @@ export async function confirmPurchase(purchaseId: string, invoiceHint?: string |
     if (count) return purchase.status;
   }
 
-  // Only the call that flips the row sends the emails (webhook and return page can race).
-  const { data: flipped } = await admin
+  // Flip every purchase on this invoice (a cart order has one row per course).
+  // Only the call that flips rows sends the emails (webhook and return page can race).
+  const flip = admin
     .from("purchases")
     .update({ status: "paid", paid_at: new Date().toISOString(), slickpay_invoice_id: invoiceId })
-    .eq("id", purchase.id)
-    .neq("status", "paid")
-    .select("id");
+    .eq("user_id", purchase.user_id)
+    .neq("status", "paid");
+  const { data: flipped } = await (purchase.slickpay_invoice_id
+    ? flip.eq("slickpay_invoice_id", invoiceId)
+    : flip.eq("id", purchase.id)
+  ).select("id, amount, course:courses(name)");
 
   if (flipped?.length) {
+    const items = (flipped as unknown as { amount: number; course: { name: string } | null }[]).map((r) => ({
+      name: r.course?.name ?? "Course",
+      amount: Number(r.amount),
+    }));
     const [{ data: user }, { data: profile }] = await Promise.all([
       admin.auth.admin.getUserById(purchase.user_id),
       admin.from("profiles").select("first_name, last_name").eq("id", purchase.user_id).maybeSingle(),
     ]);
     await sendPurchaseEmails({
       id: purchase.id,
-      amount: Number(purchase.amount),
+      items,
       invoiceId,
-      courseName: purchase.course?.name ?? "Your course",
       buyerEmail: user?.user?.email ?? null,
       buyerName: [profile?.first_name, profile?.last_name].filter(Boolean).join(" ") || null,
     });

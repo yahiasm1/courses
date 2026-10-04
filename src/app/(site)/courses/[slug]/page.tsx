@@ -8,6 +8,8 @@ import { Container } from "@/components/container";
 import { CourseCover } from "@/components/course-cover";
 import { Icon } from "@/components/icons";
 import { buyCourse } from "@/app/actions/checkout";
+import { addToCart } from "@/app/actions/cart";
+import { getCartIds } from "@/lib/cart";
 import { SubmitButton } from "@/components/submit-button";
 import { IS_SANDBOX } from "@/lib/slickpay";
 
@@ -29,7 +31,11 @@ export default async function CoursePage({ params, searchParams }: Props) {
   const [course, user] = await Promise.all([getCourse(slug), getUser()]);
   if (!course) notFound();
 
-  const owned = user ? await hasPurchased(user.id, course.id) : false;
+  const [owned, cart] = await Promise.all([
+    user ? hasPurchased(user.id, course.id) : false,
+    getCartIds(),
+  ]);
+  const inCart = cart.includes(course.id);
 
   return (
     <Container className="flex flex-col gap-4">
@@ -116,6 +122,21 @@ export default async function CoursePage({ params, searchParams }: Props) {
                     </SubmitButton>
                   </form>
                 )}
+                {!owned && Number(course.price) > 0 &&
+                  (inCart ? (
+                    <Link href="/cart" className="btn btn-secondary btn-lg w-full">
+                      <Icon name="check" size={17} strokeWidth={2.4} />
+                      In your cart · View cart
+                    </Link>
+                  ) : (
+                    <form action={addToCart}>
+                      <input type="hidden" name="courseId" value={course.id} />
+                      <SubmitButton pendingLabel="Adding…" variant="secondary">
+                        <Icon name="cart" size={17} />
+                        Add to cart
+                      </SubmitButton>
+                    </form>
+                  ))}
                 {course.sales_page_url && (
                   <a
                     href={course.sales_page_url}

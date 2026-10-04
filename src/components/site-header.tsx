@@ -5,10 +5,11 @@ import { Logo } from "@/components/logo";
 import { MobileSearch } from "@/components/mobile-search";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { logout } from "@/app/actions/auth";
+import { getCartIds } from "@/lib/cart";
 import { getCategories, getUser } from "@/lib/data";
 
 export async function SiteHeader() {
-  const [user, categories] = await Promise.all([getUser(), getCategories()]);
+  const [user, categories, cart] = await Promise.all([getUser(), getCategories(), getCartIds()]);
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-[var(--border)] bg-[var(--bg)] md:bg-[var(--bg)]/95 md:backdrop-blur-lg md:supports-[backdrop-filter]:bg-[var(--bg)]/85">
@@ -52,6 +53,19 @@ export async function SiteHeader() {
 
         <div className="ms-auto flex shrink-0 items-center gap-1.5 md:gap-2">
           <MobileSearch />
+          <Link
+            href="/cart"
+            aria-label={`Cart, ${cart.length} ${cart.length === 1 ? "item" : "items"}`}
+            title="Cart"
+            className="hdr-icon shell-focus relative"
+          >
+            <Icon name="cart" size={18} />
+            {cart.length > 0 && (
+              <span className="absolute -end-0.5 -top-0.5 flex h-[17px] min-w-[17px] items-center justify-center rounded-full bg-[var(--accent)] px-1 text-[10.5px] font-semibold leading-none text-white">
+                {cart.length}
+              </span>
+            )}
+          </Link>
           <ThemeToggle className="hidden md:inline-flex" />
 
           {user ? (

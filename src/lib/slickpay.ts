@@ -64,7 +64,8 @@ export type CreateInvoiceInput = {
   email: string;
   phone: string;
   address: string;
-  itemName: string;
+  /** Invoice lines; their prices must add up to `amount`. */
+  items: { name: string; price: number }[];
   metadata: Record<string, string>;
 };
 
@@ -77,7 +78,7 @@ export async function createInvoice(input: CreateInvoiceInput) {
     email: input.email,
     phone: input.phone,
     address: input.address,
-    items: [{ name: input.itemName, price: input.amount, quantity: 1 }],
+    items: input.items.map((i) => ({ name: i.name, price: i.price, quantity: 1 })),
     webhook_url: input.webhookUrl,
     webhook_signature: process.env.SLICKPAY_WEBHOOK_SECRET,
     webhook_meta_data: input.metadata,
