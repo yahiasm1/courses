@@ -3,7 +3,7 @@ import type { User } from "@supabase/supabase-js";
 import { sendEmail } from "@/lib/email";
 import { esc, layout } from "@/lib/email-layout";
 import { findPromo } from "@/lib/promo";
-import { SITE_NAME } from "@/lib/site";
+import { SITE_NAME, SITE_URL } from "@/lib/site";
 import { createAdminClient } from "@/lib/supabase/server";
 
 const WELCOME_CODE = "WELCOME10";
@@ -65,13 +65,13 @@ export function welcomeEmail(firstName: string | null, site: string) {
  * Sends the welcome email once per new account, recording it in app_metadata.
  * Never throws: a failed email must not break sign-up or sign-in.
  */
-export async function sendWelcomeEmailOnce(user: User | null, site: string) {
+export async function sendWelcomeEmailOnce(user: User | null) {
   try {
     if (!user?.email || user.app_metadata?.welcome_email_sent_at) return;
     if (Date.now() - new Date(user.created_at).getTime() > MAX_ACCOUNT_AGE_MS) return;
 
     const firstName = (user.user_metadata?.first_name as string | undefined)?.trim() || null;
-    await sendEmail({ to: user.email, ...welcomeEmail(firstName, site.replace(/\/+$/, "")) });
+    await sendEmail({ to: user.email, ...welcomeEmail(firstName, SITE_URL) });
     await createAdminClient().auth.admin.updateUserById(user.id, {
       app_metadata: { ...user.app_metadata, welcome_email_sent_at: new Date().toISOString() },
     });

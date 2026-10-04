@@ -46,7 +46,7 @@ export async function signup(_: AuthState, formData: FormData): Promise<AuthStat
     return { message: "Check your inbox to confirm your email, then sign in." };
   }
   // Email confirmation disabled → the account is live now.
-  await sendWelcomeEmailOnce(data.user, site);
+  await sendWelcomeEmailOnce(data.user);
   redirect(next);
 }
 

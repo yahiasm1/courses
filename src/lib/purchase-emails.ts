@@ -1,7 +1,7 @@
 import "server-only";
 import { sendEmail } from "@/lib/email";
 import { details, esc, layout } from "@/lib/email-layout";
-import { SITE_NAME } from "@/lib/site";
+import { SITE_NAME, SITE_URL } from "@/lib/site";
 import { formatPrice } from "@/lib/types";
 
 export type PaidOrder = {
@@ -15,7 +15,7 @@ export type PaidOrder = {
 
 /** Receipt to the buyer, plus a sale notice to NOTIFY_EMAIL when set. Failures are logged, not thrown. */
 export async function sendPurchaseEmails(p: PaidOrder) {
-  const site = (process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000").replace(/\/+$/, "");
+  const site = SITE_URL;
   const total = p.items.reduce((sum, i) => sum + i.amount, 0);
   const price = formatPrice(total);
   const single = p.items.length === 1;

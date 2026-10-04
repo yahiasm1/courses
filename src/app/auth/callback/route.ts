@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
     const supabase = await createClient();
     const { data } = await supabase.auth.exchangeCodeForSession(code);
     // First visit after confirming the sign-up email → send the welcome email.
-    await sendWelcomeEmailOnce(data.user, origin);
+    await sendWelcomeEmailOnce(data.user);
   }
   return NextResponse.redirect(`${origin}${next}`);
 }
