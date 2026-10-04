@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Icon } from "@/components/icons";
+import { useI18n } from "@/components/i18n-provider";
 
 export type HeroTone = {
   dot: string;
@@ -53,6 +54,7 @@ const COVER_FAN = [
 export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
+  const { t } = useI18n();
   const count = slides.length;
 
   useEffect(() => {
@@ -69,7 +71,7 @@ export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
     <section
       className="hero-stage relative isolate overflow-hidden border-y border-white/[0.06]"
       aria-roledescription="carousel"
-      aria-label="Popular niches"
+      aria-label={t.hero.label}
       data-paused={paused ? "" : undefined}
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
@@ -84,7 +86,7 @@ export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
               key={s.id}
               role="group"
               aria-roledescription="slide"
-              aria-label={`${i + 1} of ${count}: ${s.pickerTitle}`}
+              aria-label={t.hero.slide(i + 1, count, s.pickerTitle)}
               aria-hidden={!active}
               className={`absolute inset-0 h-full w-full select-none overflow-hidden transition-opacity duration-700 ${
                 active ? "opacity-100" : "pointer-events-none opacity-0"
@@ -215,7 +217,7 @@ export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
                     <div className="hidden flex-wrap gap-2 lg:flex">
                       {s.chips.map((c, ci) => (
                         <span
-                          key={c}
+                          key={`${ci}-${c}`}
                           title={c}
                           className={`max-w-[290px] truncate rounded-[5px] border px-[13px] py-[7px] text-[0.78rem] ${
                             ci === s.highlightChip ? "font-semibold" : "font-medium"

@@ -1,12 +1,17 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient, createClient } from "@/lib/supabase/server";
 import { Container } from "@/components/container";
 import { CourseCover } from "@/components/course-cover";
 import { Icon } from "@/components/icons";
+import { formatDate } from "@/lib/i18n";
+import { getDict } from "@/lib/i18n/server";
 
-export const metadata: Metadata = { title: "My courses" };
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getDict();
+  return { title: t.library.title, robots: { index: false } };
+}
 export const dynamic = "force-dynamic";
 
 type Row = {
@@ -21,27 +26,36 @@ export default async function LibraryPage() {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) redirect("/login?next=/library");
+  const { locale, t } = await getDict();
+  const l = t.library;
 
-  const { data } = await supabase
+  // Admin client (scoped to this user): courses bought before being unpublished must stay
+  // visible, which the public "published courses only" policy would hide.
+  const { data, error } = await createAdminClient()
     .from("purchases")
     .select("id, paid_at, course:courses(id, name, slug, image_url)")
     .eq("user_id", user.id)
     .eq("status", "paid")
     .order("paid_at", { ascending: false });
-  const rows = ((data ?? []) as unknown as Row[]).filter((r) => r.course);
+  if (error) throw error;
+  // One row per course, even if it was paid twice.
+  const seen = new Set<string>();
+  const rows = ((data ?? []) as unknown as Row[]).filter(
+    (r) => r.course && !seen.has(r.course.id) && seen.add(r.course.id),
+  );
 
   return (
     <Container className="flex flex-col gap-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="h1 display">My courses</h1>
+          <h1 className="h1 display">{l.title}</h1>
           <p className="mt-1 text-[14.5px] text-muted">
-            {rows.length} {rows.length === 1 ? "course" : "courses"} · {user.email}
+            {l.count(rows.length)} · <span dir="ltr">{user.email}</span>
           </p>
         </div>
         <Link href="/shop" className="btn btn-secondary self-start sm:self-auto">
           <Icon name="bag" size={17} />
-          Browse courses
+          {l.browse}
         </Link>
       </div>
 
@@ -50,17 +64,17 @@ export default async function LibraryPage() {
           <div className="icon-tile icon-tile-lg mx-auto mb-4">
             <Icon name="book" size={24} />
           </div>
-          <p className="text-[15px] font-semibold">Nothing here yet</p>
-          <p className="mt-1 text-[14px] text-muted">Courses you buy will show up here with their download link.</p>
+          <p className="text-[15px] font-semibold">{l.emptyTitle}</p>
+          <p className="mt-1 text-[14px] text-muted">{l.emptyText}</p>
           <Link href="/" className="btn btn-primary mt-5">
-            Browse courses
+            {l.browse}
           </Link>
         </div>
       ) : (
         <section className="card">
           <div className="card-head">
-            <span className="eyebrow">Purchased</span>
-            <span className="tag tag-green">Lifetime access</span>
+            <span className="eyebrow">{l.purchased}</span>
+            <span className="tag tag-green">{l.lifetime}</span>
           </div>
           <ul>
             {rows.map(({ id, paid_at, course }) => (
@@ -77,19 +91,20 @@ export default async function LibraryPage() {
                 <div className="min-w-0 flex-1">
                   <Link
                     href={`/courses/${course!.slug}`}
+                    dir="auto"
                     className="line-clamp-1 text-[14.5px] font-medium hover:underline"
                   >
                     {course!.name}
                   </Link>
                   {paid_at && (
                     <span className="mono-chip mt-1">
-                      Purchased {new Date(paid_at).toLocaleDateString("en-GB")}
+                      {l.purchasedOn(formatDate(paid_at, locale))}
                     </span>
                   )}
                 </div>
                 <a href={`/api/download/${course!.id}`} className="btn btn-primary btn-sm shrink-0">
                   <Icon name="download" size={16} />
-                  <span className="hidden sm:inline">Download</span>
+                  <span className="hidden sm:inline">{l.download}</span>
                 </a>
               </li>
             ))}

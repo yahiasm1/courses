@@ -5,6 +5,7 @@ import { useActionState } from "react";
 import { login, signup, type AuthState } from "@/app/actions/auth";
 import { Icon } from "@/components/icons";
 import { SubmitButton } from "@/components/submit-button";
+import { useI18n } from "@/components/i18n-provider";
 
 export function AuthForm({ mode, next }: { mode: "login" | "signup"; next?: string }) {
   const [state, action] = useActionState<AuthState, FormData>(
@@ -12,15 +13,17 @@ export function AuthForm({ mode, next }: { mode: "login" | "signup"; next?: stri
     undefined,
   );
   const isSignup = mode === "signup";
+  const { t } = useI18n();
+  const a = t.auth;
   const nextQuery = next ? `?next=${encodeURIComponent(next)}` : "";
 
   return (
     <div className={`authcard ${isSignup ? "max-w-[460px]" : ""}`}>
       <h1 className="h2 display mb-1.5">
-        {isSignup ? "Create your account" : "Welcome back"}
+        {isSignup ? a.createTitle : a.welcomeBack}
       </h1>
       <p className="mb-6 text-[15px] text-muted">
-        {isSignup ? "Sign up to buy and download courses." : "Sign in to access your courses."}
+        {isSignup ? a.createText : a.signInText}
       </p>
 
       <form action={action} className="flex flex-col gap-3.5">
@@ -30,26 +33,27 @@ export function AuthForm({ mode, next }: { mode: "login" | "signup"; next?: stri
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="label" htmlFor="first_name">
-                  First name
+                  {a.firstName}
                 </label>
                 <input id="first_name" name="first_name" required className="input" />
               </div>
               <div>
                 <label className="label" htmlFor="last_name">
-                  Last name
+                  {a.lastName}
                 </label>
                 <input id="last_name" name="last_name" required className="input" />
               </div>
             </div>
             <div>
               <label className="label" htmlFor="phone">
-                Phone
+                {a.phone}
               </label>
               <input
                 id="phone"
                 name="phone"
                 type="tel"
                 placeholder="0555 12 34 56"
+                dir="ltr"
                 required
                 className="input"
               />
@@ -58,13 +62,14 @@ export function AuthForm({ mode, next }: { mode: "login" | "signup"; next?: stri
         )}
         <div>
           <label className="label" htmlFor="email">
-            Email
+            {a.email}
           </label>
           <input
             id="email"
             name="email"
             type="email"
             placeholder="you@email.com"
+            dir="ltr"
             required
             autoComplete="email"
             className="input"
@@ -72,13 +77,13 @@ export function AuthForm({ mode, next }: { mode: "login" | "signup"; next?: stri
         </div>
         <div>
           <label className="label" htmlFor="password">
-            Password
+            {a.password}
           </label>
           <input
             id="password"
             name="password"
             type="password"
-            placeholder={isSignup ? "At least 6 characters" : "••••••••"}
+            placeholder={isSignup ? a.passwordHint : "••••••••"}
             required
             minLength={6}
             autoComplete={isSignup ? "new-password" : "current-password"}
@@ -99,18 +104,18 @@ export function AuthForm({ mode, next }: { mode: "login" | "signup"; next?: stri
           </div>
         )}
 
-        <SubmitButton>{isSignup ? "Create account" : "Sign in"}</SubmitButton>
+        <SubmitButton>{isSignup ? a.createAccount : a.signIn}</SubmitButton>
       </form>
 
       <p className="mt-[22px] text-center text-[14px] text-muted">
-        {isSignup ? "Already have an account? " : "New here? "}
+        {isSignup ? a.haveAccount : a.newHere}
         <Link href={`${isSignup ? "/login" : "/signup"}${nextQuery}`} className="link">
-          {isSignup ? "Sign in" : "Create an account"}
+          {isSignup ? a.signIn : a.createLink}
         </Link>
       </p>
       <p className="mt-3.5 flex items-center justify-center gap-1.5 font-mono text-[11px] text-faint">
         <Icon name="lock" size={12} />
-        Secure checkout · CIB · Edahabia
+        {a.secure}
       </p>
     </div>
   );

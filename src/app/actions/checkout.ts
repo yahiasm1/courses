@@ -4,7 +4,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { createAdminClient, createClient } from "@/lib/supabase/server";
 import { IS_SANDBOX, createInvoice } from "@/lib/slickpay";
-import { CART_COOKIE, PROMO_COOKIE, getCartIds, getPromoCode, ownedIds, validatePromo } from "@/lib/cart";
+import { PROMO_COOKIE, getCartIds, getPromoCode, ownedIds, validatePromo } from "@/lib/cart";
 import { discounted } from "@/lib/promo";
 import { siteOrigin } from "@/lib/site-origin";
 
@@ -38,7 +38,11 @@ async function startCheckout(courseIds: string[], opts: { back: string; promoCod
   }
 
   const { promo, error: promoError } = await validatePromo(opts.promoCode, user.id);
-  if (promoError) redirect(`${opts.back}?promo_error=${promoError}`);
+  if (promoError) {
+    // Drop the refused code so it can't block every later checkout.
+    (await cookies()).delete(PROMO_COOKIE);
+    redirect(`${opts.back}?promo_error=${promoError}`);
+  }
 
   const lines = courses.map((c) => ({ course: c, amount: discounted(Number(c.price), promo) }));
   const total = lines.reduce((sum, l) => sum + l.amount, 0);
@@ -50,6 +54,15 @@ async function startCheckout(courseIds: string[], opts: { back: string; promoCod
     .maybeSingle();
 
   const admin = createAdminClient();
+  // A new checkout replaces any unpaid one for the same courses (second tab, Back button).
+  // If an old invoice is still paid later, confirmation honours it anyway.
+  await admin
+    .from("purchases")
+    .update({ status: "failed" })
+    .eq("user_id", user.id)
+    .eq("status", "pending")
+    .in("course_id", courses.map((c) => c.id));
+
   const { data: purchases, error } = await admin
     .from("purchases")
     .insert(lines.map((l) => ({ user_id: user.id, course_id: l.course.id, amount: l.amount })))
@@ -79,7 +92,11 @@ async function startCheckout(courseIds: string[], opts: { back: string; promoCod
       metadata: { purchase_id: primary },
     });
 
-    await admin.from("purchases").update({ slickpay_invoice_id: String(invoice.id) }).in("id", ids);
+    // Confirmation relies on this link between our rows and the invoice: retry once, then fail.
+    const save = () => admin.from("purchases").update({ slickpay_invoice_id: String(invoice.id) }).in("id", ids);
+    let { error: saveError } = await save();
+    if (saveError) ({ error: saveError } = await save());
+    if (saveError) throw new Error(`Database: could not save invoice ${invoice.id}: ${saveError.message}`);
     return invoice.url;
   } catch (e) {
     console.error("[checkout] SlickPay invoice failed:", e);
@@ -96,14 +113,13 @@ export async function buyCourse(formData: FormData) {
   redirect(url);
 }
 
-/** Checkout of everything in the cart, with the applied promo code. */
+/**
+ * Checkout of everything in the cart, with the applied promo code. The cart is kept
+ * until payment is confirmed (see pruneCart), so cancelling on SlickPay loses nothing.
+ */
 export async function checkoutCart() {
   const ids = await getCartIds();
   if (!ids.length) redirect("/cart");
   const url = await startCheckout(ids, { back: "/cart", promoCode: await getPromoCode() });
-
-  const jar = await cookies();
-  jar.delete(CART_COOKIE);
-  jar.delete(PROMO_COOKIE);
   redirect(url);
 }

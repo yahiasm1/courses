@@ -10,7 +10,11 @@ const SANDBOX_URL = "https://devapi.slick-pay.com/api/v2";
 /** Public sandbox key published in SlickPay's docs; only valid against the sandbox. */
 const SANDBOX_KEY = "54|BZ7F6N4KwSD46GEXToOv3ZBpJpf7WVxnBzK5cOE6";
 
-const BASE_URL = (process.env.SLICKPAY_BASE_URL?.trim() || SANDBOX_URL).replace(/\/+$/, "");
+// Production must say which SlickPay environment to use: silently falling back to the
+// sandbox there would let anyone "pay" with test cards.
+const BASE_URL = (
+  process.env.SLICKPAY_BASE_URL?.trim() || (process.env.VERCEL_ENV === "production" ? "" : SANDBOX_URL)
+).replace(/\/+$/, "");
 /** True when talking to SlickPay's sandbox (test mode). */
 export const IS_SANDBOX = BASE_URL.includes("devapi.");
 
@@ -26,6 +30,7 @@ function apiKey() {
 }
 
 async function slickpay<T>(path: string, init: RequestInit = {}): Promise<T> {
+  if (!BASE_URL) throw new Error("SlickPay: SLICKPAY_BASE_URL is not set (required in production).");
   const res = await fetch(`${BASE_URL}${path}`, {
     ...init,
     headers: {
