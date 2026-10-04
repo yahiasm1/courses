@@ -36,38 +36,42 @@ function details(rows: [string, string][]) {
   return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:8px 0 12px 0;border-top:1px solid #eeecf5;border-bottom:1px solid #eeecf5;font-family:Arial,Helvetica,sans-serif;">${tr}</table>`;
 }
 
-export type PaidPurchase = {
+export type PaidOrder = {
+  /** First purchase id of the order. */
   id: string;
-  amount: number;
+  items: { name: string; amount: number }[];
   invoiceId: string;
-  courseName: string;
   buyerEmail: string | null;
   buyerName: string | null;
 };
 
 /** Receipt to the buyer, plus a sale notice to NOTIFY_EMAIL when set. Failures are logged, not thrown. */
-export async function sendPurchaseEmails(p: PaidPurchase) {
+export async function sendPurchaseEmails(p: PaidOrder) {
   const site = (process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000").replace(/\/+$/, "");
-  const course = esc(p.courseName);
-  const price = formatPrice(p.amount);
+  const total = p.items.reduce((sum, i) => sum + i.amount, 0);
+  const price = formatPrice(total);
+  const single = p.items.length === 1;
+  const title = single ? p.items[0].name : `${p.items.length} courses`;
+  const course = single ? `<strong>${esc(p.items[0].name)}</strong> is` : `<strong>your ${p.items.length} courses</strong> are`;
   const rows: [string, string][] = [
-    ["Course", course],
-    ["Amount", price],
+    ...p.items.map((i): [string, string] => [esc(i.name), formatPrice(i.amount)]),
+    ["Total", price],
     ["Invoice", `#${esc(p.invoiceId)}`],
   ];
+  const plainItems = p.items.map((i) => `- ${i.name}: ${formatPrice(i.amount)}`).join("\n");
   const jobs: Promise<void>[] = [];
 
   if (p.buyerEmail) {
     jobs.push(
       sendEmail({
         to: p.buyerEmail,
-        subject: `Your purchase: ${p.courseName}`,
+        subject: `Your purchase: ${title}`,
         html: layout(
           "Thanks for your purchase!",
-          `<p style="margin:0 0 12px 0;font-size:15px;line-height:1.6;color:#3d3a4f;">Your payment is confirmed and <strong>${course}</strong> is now in My courses, ready to download.</p>${details(rows)}`,
+          `<p style="margin:0 0 12px 0;font-size:15px;line-height:1.6;color:#3d3a4f;">Your payment is confirmed and ${course} now in My courses, ready to download.</p>${details(rows)}`,
           { href: `${site}/library`, label: "Go to My courses" },
         ),
-        text: `Thanks for your purchase!\n\n${p.courseName} is now in My courses: ${site}/library\n\nAmount: ${price}\nInvoice: #${p.invoiceId}\n\n${SITE_NAME}`,
+        text: `Thanks for your purchase!\n\n${plainItems}\nTotal: ${price}\nInvoice: #${p.invoiceId}\n\nDownload from My courses: ${site}/library\n\n${SITE_NAME}`,
       }),
     );
   }
@@ -81,9 +85,9 @@ export async function sendPurchaseEmails(p: PaidPurchase) {
     jobs.push(
       sendEmail({
         to: notify,
-        subject: `New sale: ${p.courseName} (${price})`,
+        subject: `New sale: ${title} (${price})`,
         html: layout("New sale", details([...rows, ["Buyer", esc(buyer)], ["Purchase", esc(p.id)]])),
-        text: `New sale\n\nCourse: ${p.courseName}\nAmount: ${price}\nBuyer: ${buyer}\nInvoice: #${p.invoiceId}\nPurchase: ${p.id}`,
+        text: `New sale\n\n${plainItems}\nTotal: ${price}\nBuyer: ${buyer}\nInvoice: #${p.invoiceId}\nPurchase: ${p.id}`,
       }),
     );
   }
