@@ -212,6 +212,7 @@ export const en = {
     secure: "Secure checkout · CIB · Edahabia",
     courses: "Courses",
     checkInbox: "Check your inbox to confirm your email, then sign in.",
+    emailConfirmed: "Your email is confirmed. Sign in to continue.",
     errors: {
       invalidCredentials: "Wrong email or password.",
       emailNotConfirmed: "Please confirm your email first (check your inbox).",
