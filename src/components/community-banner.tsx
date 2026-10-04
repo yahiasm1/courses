@@ -1,6 +1,6 @@
 import { TELEGRAM_URL } from "@/lib/site";
 
-/** Telegram group banner, shown above the site header. */
+/** Telegram channel banner, shown above the site header. */
 export function CommunityBanner() {
   if (!TELEGRAM_URL) return null;
   return (
@@ -11,7 +11,7 @@ export function CommunityBanner() {
             ✈️
           </span>
           <div className="whatsapp-text">
-            <strong>انضم إلى مجموعتنا على تيليجرام</strong>
+            <strong>انضم إلى قناتنا على تيليجرام</strong>
             <span>آخر الأخبار، العروض والتحديثات ❤️</span>
           </div>
           <a href={TELEGRAM_URL} target="_blank" rel="noopener noreferrer" className="whatsapp-btn">
