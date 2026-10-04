@@ -75,6 +75,7 @@ export async function confirmPurchase(purchaseId: string, invoiceHint?: string |
       invoiceId,
       buyerEmail: user?.user?.email ?? null,
       buyerName: [profile?.first_name, profile?.last_name].filter(Boolean).join(" ") || null,
+      buyerLocale: user?.user?.user_metadata?.locale === "ar" ? "ar" : "en",
     });
   }
   return "paid";

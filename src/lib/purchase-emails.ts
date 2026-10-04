@@ -2,7 +2,7 @@ import "server-only";
 import { sendEmail } from "@/lib/email";
 import { details, esc, layout } from "@/lib/email-layout";
 import { SITE_NAME, SITE_URL } from "@/lib/site";
-import { formatPrice } from "@/lib/types";
+import { dictionaries, formatPrice, type Locale } from "@/lib/i18n";
 
 export type PaidOrder = {
   /** First purchase id of the order. */
@@ -11,6 +11,8 @@ export type PaidOrder = {
   invoiceId: string;
   buyerEmail: string | null;
   buyerName: string | null;
+  /** Language of the buyer's receipt (the sale notice to the owner is always English). */
+  buyerLocale?: Locale;
 };
 
 /** Receipt to the buyer, plus a sale notice to NOTIFY_EMAIL when set. Failures are logged, not thrown. */
@@ -29,7 +31,31 @@ export async function sendPurchaseEmails(p: PaidOrder) {
   const plainItems = p.items.map((i) => `- ${i.name}: ${formatPrice(i.amount)}`).join("\n");
   const jobs: Promise<boolean>[] = [];
 
-  if (p.buyerEmail) {
+  if (p.buyerEmail && p.buyerLocale === "ar") {
+    const fp = (n: number) => formatPrice(n, "ar");
+    const arTitle = single ? p.items[0].name : dictionaries.ar.courses(p.items.length);
+    const what = single
+      ? `<strong dir="auto">${esc(p.items[0].name)}</strong> متاحة`
+      : `<strong>دوراتك (${p.items.length})</strong> متاحة`;
+    const arRows: [string, string][] = [
+      ...p.items.map((i): [string, string] => [`<span dir="auto">${esc(i.name)}</span>`, fp(i.amount)]),
+      ["المجموع", fp(total)],
+      ["الفاتورة", `<span dir="ltr">#${esc(p.invoiceId)}</span>`],
+    ];
+    jobs.push(
+      sendEmail({
+        to: p.buyerEmail,
+        subject: `مشترياتك: ${arTitle}`,
+        html: layout(
+          "شكرًا على شرائك!",
+          `<p style="margin:0 0 12px 0;font-size:15px;line-height:1.6;color:#3d3a4f;">تم تأكيد دفعتك، و${what} الآن في «دوراتي» وجاهزة للتحميل.</p>${details(arRows, "ar")}`,
+          { href: `${site}/library`, label: "الذهاب إلى دوراتي" },
+          "ar",
+        ),
+        text: `شكرًا على شرائك!\n\n${p.items.map((i) => `- ${i.name}: ${fp(i.amount)}`).join("\n")}\nالمجموع: ${fp(total)}\nالفاتورة: #${p.invoiceId}\n\nحمّل دوراتك من «دوراتي»: ${site}/library\n\n${SITE_NAME}`,
+      }),
+    );
+  } else if (p.buyerEmail) {
     jobs.push(
       sendEmail({
         to: p.buyerEmail,

@@ -8,7 +8,7 @@ import { NicheGrid } from "@/components/niche-grid";
 import { Pagination } from "@/components/pagination";
 import { TrustStrip } from "@/components/trust-strip";
 import { categoryImage } from "@/lib/category-thumbs";
-import { SITE_TAGLINE } from "@/lib/site";
+import { getDict } from "@/lib/i18n/server";
 
 export const dynamic = "force-dynamic";
 
@@ -18,10 +18,11 @@ export default async function HomePage({
   searchParams: Promise<{ page?: string }>;
 }) {
   const { page } = await searchParams;
-  const [categories, allCourses, result] = await Promise.all([
+  const [categories, allCourses, result, { t }] = await Promise.all([
     getCategories(),
     getCourses(),
     searchCourses({ page: Number(page) || 1, perPage: 12 }),
+    getDict(),
   ]);
 
   const counts = new Map<string, number>();
@@ -41,11 +42,11 @@ export default async function HomePage({
           <section className="flex flex-col gap-4">
             <div className="flex items-end justify-between gap-4">
               <div>
-                <h2 className="section-header">Popular niches</h2>
-                <p className="mt-1 text-[0.88rem] text-muted">Pick a topic and dive in.</p>
+                <h2 className="section-header">{t.home.popularNiches}</h2>
+                <p className="mt-1 text-[0.88rem] text-muted">{t.home.pickTopic}</p>
               </div>
               <Link href="/shop" className="link linklift shrink-0 text-[0.82rem]">
-                All courses
+                {t.home.allCourses}
               </Link>
             </div>
             <NicheGrid niches={niches} />
@@ -55,14 +56,14 @@ export default async function HomePage({
         <section className="flex flex-col gap-4">
           <div className="flex items-end justify-between gap-4">
             <div>
-              <h2 className="section-header">All courses</h2>
+              <h2 className="section-header">{t.home.allCourses}</h2>
               <p className="mt-1 text-[0.88rem] text-muted">
-                {SITE_TAGLINE} {result.total > 0 && `· ${result.total} ${result.total === 1 ? "course" : "courses"}`}
+                {t.home.tagline} {result.total > 0 && `· ${t.courses(result.total)}`}
               </p>
             </div>
             <Link href="/shop" className="btn btn-secondary btn-sm shrink-0">
               <Icon name="search" size={15} />
-              Search &amp; filter
+              {t.home.searchFilter}
             </Link>
           </div>
           <CourseGrid courses={result.courses} />

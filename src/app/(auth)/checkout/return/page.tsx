@@ -6,8 +6,12 @@ import { createClient } from "@/lib/supabase/server";
 import { AutoRefresh } from "@/components/auto-refresh";
 import { Icon } from "@/components/icons";
 import { PruneCart } from "@/components/prune-cart";
+import { getDict } from "@/lib/i18n/server";
 
-export const metadata: Metadata = { title: "Payment", robots: { index: false } };
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getDict();
+  return { title: t.payment.title, robots: { index: false } };
+}
 export const dynamic = "force-dynamic";
 
 export default async function CheckoutReturnPage({
@@ -32,6 +36,8 @@ export default async function CheckoutReturnPage({
   }
 
   const paid = status === "paid";
+  const { t } = await getDict();
+  const p = t.payment;
 
   return (
     <div className="authcard text-center">
@@ -39,26 +45,24 @@ export default async function CheckoutReturnPage({
         <Icon name={paid ? "checkCircle" : "clock"} size={26} />
       </div>
       <h1 className="h2 display mb-2">
-        {paid ? "Payment successful" : "Payment not confirmed yet"}
+        {paid ? p.success : p.pending}
       </h1>
       <p className="mb-[22px] text-[15px] leading-[1.5] text-muted">
-        {paid
-          ? "Your course is ready in My courses."
-          : "If you completed the payment, it can take a minute to confirm. Refresh this page or check My courses."}
+        {paid ? p.successText : p.pendingText}
       </p>
       {paid && <PruneCart />}
       {!paid && status !== null && <AutoRefresh />}
       {!paid && (
         <div className="notice notice-grey mb-[18px] justify-center">
-          <span>Payments are confirmed with SlickPay before a download link is shown.</span>
+          <span>{p.pendingNote}</span>
         </div>
       )}
       <Link href="/library" className="btn btn-primary btn-lg w-full">
         <Icon name="book" size={18} />
-        Go to My courses
+        {p.goLibrary}
       </Link>
       <Link href="/" className="btn btn-secondary mt-2.5 h-[44px] w-full rounded-[12px]">
-        Back to courses
+        {p.back}
       </Link>
     </div>
   );

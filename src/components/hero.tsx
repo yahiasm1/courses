@@ -1,6 +1,8 @@
 import { HeroCarousel, type HeroSlide, type HeroTone } from "@/components/hero-carousel";
 import { categoryPalette, categoryThumb } from "@/lib/category-thumbs";
-import { formatPrice, type Category, type Course } from "@/lib/types";
+import type { Category, Course } from "@/lib/types";
+import { formatPrice } from "@/lib/i18n";
+import { getDict } from "@/lib/i18n/server";
 
 const tones: HeroTone[] = [
   {
@@ -89,7 +91,10 @@ function toneFromPalette([from, to]: [string, string]): HeroTone {
 }
 
 /** One slide per popular niche (category), ordered by course count. */
-export function Hero({ categories, courses }: { categories: Category[]; courses: Course[] }) {
+export async function Hero({ categories, courses }: { categories: Category[]; courses: Course[] }) {
+  const { locale, t } = await getDict();
+  const h = t.hero;
+  const price = (n: number) => formatPrice(n, locale);
   const byCategory = new Map<string, Course[]>();
   courses.forEach((c) => {
     if (!c.category_id) return;
@@ -110,21 +115,21 @@ export function Hero({ categories, courses }: { categories: Category[]; courses:
     const palette = categoryPalette(cat);
     return {
       id: cat.id,
-      eyebrow: `${cat.name} · ${n} ${n === 1 ? "course" : "courses"}`,
-      titleTop: "Master",
-      titleBottom: `${cat.name}.`,
-      textShort: `${n} ${n === 1 ? "course" : "courses"} from ${formatPrice(cheapest)}. Pay once, download right away.`,
-      textLong: `${n} ${n === 1 ? "course" : "courses"} in ${cat.name}, from ${formatPrice(cheapest)}. Pay with CIB or Edahabia and the download link is yours right after checkout.`,
+      eyebrow: h.nicheEyebrow(cat.name, n),
+      titleTop: h.master,
+      titleBottom: locale === "ar" ? cat.name : `${cat.name}.`,
+      textShort: h.nicheShort(n, price(cheapest)),
+      textLong: h.nicheLong(n, cat.name, price(cheapest)),
       chips,
       highlightChip: Math.max(0, chips.indexOf(featured.name)),
-      cta: `Browse ${cat.name}`,
+      cta: h.browse(cat.name),
       href: `/shop?category=${cat.slug}`,
-      meta: "Instant download",
+      meta: h.instant,
       image: cat.image_url,
       thumb: cat.image_url ? null : categoryThumb(cat),
       initial: cat.name.charAt(0),
       pickerTitle: cat.name,
-      pickerSub: `${n} ${n === 1 ? "course" : "courses"}`,
+      pickerSub: t.courses(n),
       tone: palette ? toneFromPalette(palette) : tones[i % tones.length],
     };
   });
@@ -133,16 +138,16 @@ export function Hero({ categories, courses }: { categories: Category[]; courses:
     const n = courses.length;
     slides.push({
       id: "all",
-      eyebrow: "All courses",
-      titleTop: "Learn something",
-      titleBottom: "new today.",
-      textShort: `${n} ${n === 1 ? "course" : "courses"} ready to download after payment.`,
-      textLong: `${n} ${n === 1 ? "course" : "courses"} ready to download the moment your payment is confirmed. Pay with CIB or Edahabia.`,
+      eyebrow: h.allEyebrow,
+      titleTop: h.allTop,
+      titleBottom: h.allBottom,
+      textShort: h.allShort(n),
+      textLong: h.allLong(n),
       chips: courses.slice(0, 4).map((c) => c.name),
       highlightChip: 0,
-      cta: "Browse all courses",
+      cta: h.browseAll,
       href: "/shop",
-      meta: "Instant download",
+      meta: h.instant,
       image: null,
       covers: [
         ...courses.filter((c) => c.is_featured && c.image_url),
@@ -151,8 +156,8 @@ export function Hero({ categories, courses }: { categories: Category[]; courses:
         .slice(0, 3)
         .map((c) => c.image_url as string),
       initial: "C",
-      pickerTitle: "All courses",
-      pickerSub: `${n} ${n === 1 ? "course" : "courses"}`,
+      pickerTitle: h.allEyebrow,
+      pickerSub: t.courses(n),
       tone: tones[3],
     });
   }

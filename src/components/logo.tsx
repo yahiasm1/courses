@@ -14,7 +14,7 @@ export function Logo({ size = 34 }: { size?: number }) {
         height={size}
         className="shrink-0 drop-shadow-[0_6px_16px_var(--accent-shadow)]"
       />
-      <span className="display text-[17px]" aria-hidden>
+      <span className="display whitespace-nowrap text-[17px]" aria-hidden>
         {lead}
         {tail && <span className="text-[var(--accent)]"> {tail}</span>}
       </span>

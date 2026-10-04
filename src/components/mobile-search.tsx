@@ -3,12 +3,14 @@
 import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { Icon } from "@/components/icons";
+import { useI18n } from "@/components/i18n-provider";
 
 /** Search button for small screens; expands a search row under the header. */
 export function MobileSearch() {
   const [open, setOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const pathname = usePathname();
+  const { t } = useI18n();
 
   useEffect(() => setOpen(false), [pathname]);
   useEffect(() => {
@@ -19,7 +21,7 @@ export function MobileSearch() {
     <>
       <button
         type="button"
-        aria-label="Search"
+        aria-label={t.nav.search}
         aria-expanded={open}
         onClick={() => setOpen((v) => !v)}
         className="hdr-icon shell-focus md:hidden"
@@ -36,11 +38,11 @@ export function MobileSearch() {
               name="q"
               autoComplete="off"
               enterKeyHint="search"
-              placeholder="Search courses…"
-              aria-label="Search"
+              placeholder={t.nav.searchCourses}
+              aria-label={t.nav.search}
             />
             <button type="submit" className="btn btn-primary btn-sm h-8">
-              Search
+              {t.nav.search}
             </button>
           </form>
         </div>

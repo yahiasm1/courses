@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Icon } from "@/components/icons";
+import { getDict } from "@/lib/i18n/server";
 
 type Params = Record<string, string | number | undefined>;
 
@@ -14,7 +15,7 @@ function href(basePath: string, params: Params, page: number) {
 }
 
 /** Numbered pagination with a window around the current page. */
-export function Pagination({
+export async function Pagination({
   page,
   totalPages,
   basePath,
@@ -26,6 +27,8 @@ export function Pagination({
   params?: Params;
 }) {
   if (totalPages <= 1) return null;
+  const { t } = await getDict();
+  const pg = t.pagination;
 
   const pages = new Set<number>([1, totalPages, page - 1, page, page + 1]);
   const list = [...pages].filter((p) => p >= 1 && p <= totalPages).sort((a, b) => a - b);
@@ -42,16 +45,16 @@ export function Pagination({
   );
 
   return (
-    <nav aria-label="Pagination" className="flex flex-wrap items-center justify-center gap-1.5">
+    <nav aria-label={pg.label} className="flex flex-wrap items-center justify-center gap-1.5">
       {page > 1 ? (
-        <Link href={href(basePath, params, page - 1)} className="pill" aria-label="Previous page">
-          <Icon name="chevronRight" size={14} className="rotate-180" />
-          Prev
+        <Link href={href(basePath, params, page - 1)} className="pill" aria-label={pg.prevPage}>
+          <Icon name="chevronRight" size={14} className="rotate-180 rtl:rotate-0" />
+          {pg.prev}
         </Link>
       ) : (
         <span className="pill opacity-40">
-          <Icon name="chevronRight" size={14} className="rotate-180" />
-          Prev
+          <Icon name="chevronRight" size={14} className="rotate-180 rtl:rotate-0" />
+          {pg.prev}
         </span>
       )}
       {list.map((p, i) => (
@@ -61,14 +64,14 @@ export function Pagination({
         </span>
       ))}
       {page < totalPages ? (
-        <Link href={href(basePath, params, page + 1)} className="pill" aria-label="Next page">
-          Next
-          <Icon name="chevronRight" size={14} />
+        <Link href={href(basePath, params, page + 1)} className="pill" aria-label={pg.nextPage}>
+          {pg.next}
+          <Icon name="chevronRight" size={14} className="rtl:rotate-180" />
         </Link>
       ) : (
         <span className="pill opacity-40">
-          Next
-          <Icon name="chevronRight" size={14} />
+          {pg.next}
+          <Icon name="chevronRight" size={14} className="rtl:rotate-180" />
         </span>
       )}
     </nav>

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Icon } from "@/components/icons";
+import { useI18n } from "@/components/i18n-provider";
 
 type Theme = "light" | "dark";
 
@@ -14,6 +15,7 @@ function currentTheme(): Theme {
 /** Switches <html data-theme> and remembers the choice in localStorage. */
 export function ThemeToggle({ className = "" }: { className?: string }) {
   const [theme, setTheme] = useState<Theme | null>(null);
+  const { t } = useI18n();
 
   useEffect(() => setTheme(currentTheme()), []);
 
@@ -28,7 +30,7 @@ export function ThemeToggle({ className = "" }: { className?: string }) {
     setTheme(next);
   };
 
-  const label = theme === "dark" ? "Switch to light mode" : "Switch to dark mode";
+  const label = theme === "dark" ? t.nav.lightMode : t.nav.darkMode;
   return (
     <button
       type="button"

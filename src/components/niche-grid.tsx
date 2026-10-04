@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { Icon } from "@/components/icons";
+import { useI18n } from "@/components/i18n-provider";
 
 export type Niche = { id: string; name: string; slug: string; image: string | null; count: number };
 
@@ -17,6 +18,7 @@ const VISIBLE = 8;
 
 export function NicheGrid({ niches }: { niches: Niche[] }) {
   const [expanded, setExpanded] = useState(false);
+  const { t } = useI18n();
   const shown = expanded ? niches : niches.slice(0, VISIBLE);
   const hidden = niches.length - VISIBLE;
 
@@ -42,8 +44,8 @@ export function NicheGrid({ niches }: { niches: Niche[] }) {
             <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/20 to-black/80" />
             <span className="relative text-[15px] font-semibold tracking-[-.01em]">{c.name}</span>
             <span className="relative mt-0.5 flex items-center gap-1 text-[12.5px] text-white/80">
-              {c.count} {c.count === 1 ? "course" : "courses"}
-              <Icon name="arrowRight" size={13} />
+              {t.courses(c.count)}
+              <Icon name="arrowRight" size={13} className="rtl:-scale-x-100" />
             </span>
           </Link>
         ))}
@@ -56,7 +58,7 @@ export function NicheGrid({ niches }: { niches: Niche[] }) {
           onClick={() => setExpanded((v) => !v)}
           className="btn btn-secondary btn-sm self-center"
         >
-          {expanded ? "Show fewer categories" : `Show all categories (${niches.length})`}
+          {expanded ? t.home.showFewer : t.home.showAll(niches.length)}
           <Icon
             name="chevronDown"
             size={15}

@@ -5,11 +5,13 @@ import { usePathname, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useRef, useState } from "react";
 import { Icon } from "@/components/icons";
 import type { Category } from "@/lib/types";
+import { useI18n } from "@/components/i18n-provider";
 
 function Menu({ categories }: { categories: Pick<Category, "id" | "name" | "slug">[] }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
+  const { t } = useI18n();
   const search = useSearchParams().toString();
 
   useEffect(() => setOpen(false), [pathname, search]);
@@ -32,7 +34,7 @@ function Menu({ categories }: { categories: Pick<Category, "id" | "name" | "slug
     <div ref={ref} className="relative inline-flex items-center">
       <button
         type="button"
-        aria-label="Categories"
+        aria-label={t.nav.categories}
         aria-expanded={open}
         aria-haspopup="true"
         data-open={open}
@@ -40,7 +42,7 @@ function Menu({ categories }: { categories: Pick<Category, "id" | "name" | "slug
         className="hdr-link shell-focus select-none"
       >
         <Icon name="grid" size={18} />
-        <span>Categories</span>
+        <span>{t.nav.categories}</span>
         <Icon
           name="chevronDown"
           size={14}
@@ -50,7 +52,7 @@ function Menu({ categories }: { categories: Pick<Category, "id" | "name" | "slug
       {open && (
         <div className="menu-panel" role="menu">
           {categories.length === 0 && (
-            <p className="px-3 py-2 text-[0.85rem] text-muted">No categories yet</p>
+            <p className="px-3 py-2 text-[0.85rem] text-muted">{t.nav.noCategories}</p>
           )}
           {categories.map((c) => (
             <Link key={c.id} href={`/shop?category=${c.slug}`} className="menu-item" role="menuitem">
@@ -61,7 +63,7 @@ function Menu({ categories }: { categories: Pick<Category, "id" | "name" | "slug
           <div className="my-1 h-px bg-[var(--border)]" />
           <Link href="/shop" className="menu-item" role="menuitem">
             <Icon name="bag" size={16} className="text-faint" />
-            Browse all
+            {t.nav.browseAll}
           </Link>
         </div>
       )}

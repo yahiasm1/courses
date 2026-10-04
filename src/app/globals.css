@@ -947,7 +947,6 @@ header:has(> .whatsapp-banner) {
   border: 1px solid rgba(37, 211, 102, 0.25);
   border-radius: 12px;
   color: #fff;
-  direction: rtl;
 }
 .whatsapp-banner-content {
   max-width: 1200px;

@@ -3,29 +3,31 @@
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { Suspense } from "react";
+import { useI18n } from "@/components/i18n-provider";
 
 const tabs = [
-  { href: "/login", name: "Sign in" },
-  { href: "/signup", name: "Sign up" },
-];
+  { href: "/login", name: "signIn" },
+  { href: "/signup", name: "signUp" },
+] as const;
 
 function AuthTabsInner() {
   const pathname = usePathname();
+  const { t } = useI18n();
   const next = useSearchParams().get("next");
   const query = next ? `?next=${encodeURIComponent(next)}` : "";
 
   return (
     <div className="flex items-center gap-1.5">
-      <Link href="/" className="pill">
-        Courses
+      <Link href="/" className="pill hidden sm:inline-flex">
+        {t.auth.courses}
       </Link>
-      {tabs.map((t) => (
+      {tabs.map((tab) => (
         <Link
-          key={t.href}
-          href={`${t.href}${query}`}
-          className={`pill ${pathname === t.href ? "pill--active" : ""}`}
+          key={tab.href}
+          href={`${tab.href}${query}`}
+          className={`pill ${pathname === tab.href ? "pill--active" : ""}`}
         >
-          {t.name}
+          {t.nav[tab.name]}
         </Link>
       ))}
     </div>
