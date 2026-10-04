@@ -1,6 +1,6 @@
 // Change these to your brand.
 export const SITE_NAME = "Courses DZ";
-export const SITE_TAGLINE = "Every course I've made, in one place.";
+export const SITE_TAGLINE = "Pay in DA with CIB or Edahabia, download instantly.";
 export const CONTACT_EMAIL = "contact@coursesdz.com";
 
 /** Public address of the site. NEXT_PUBLIC_SITE_URL overrides it (e.g. http://localhost:3000 in dev). */

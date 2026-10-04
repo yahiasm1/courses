@@ -3,15 +3,21 @@ import "server-only";
 /**
  * Sends an email through Resend's HTTP API (https://resend.com/docs/api-reference/emails/send-email).
  * Does nothing (and logs why) when RESEND_API_KEY or EMAIL_FROM is not set.
+ * Returns whether the email was handed to Resend.
  */
-export async function sendEmail(input: { to: string | string[]; subject: string; html: string; text: string }) {
+export async function sendEmail(input: {
+  to: string | string[];
+  subject: string;
+  html: string;
+  text: string;
+}): Promise<boolean> {
   const key = process.env.RESEND_API_KEY?.trim();
   const from = process.env.EMAIL_FROM?.trim();
   // Replies go to EMAIL_REPLY_TO, else the first NOTIFY_EMAIL address.
   const replyTo = process.env.EMAIL_REPLY_TO?.trim() || process.env.NOTIFY_EMAIL?.split(",")[0]?.trim();
   if (!key || !from) {
     console.info(`[email] skipped "${input.subject}": RESEND_API_KEY or EMAIL_FROM is not set`);
-    return;
+    return false;
   }
 
   const res = await fetch("https://api.resend.com/emails", {
@@ -23,4 +29,5 @@ export async function sendEmail(input: { to: string | string[]; subject: string;
   if (!res.ok) {
     throw new Error(`Resend ${res.status}: ${await res.text().catch(() => res.statusText)}`);
   }
+  return true;
 }

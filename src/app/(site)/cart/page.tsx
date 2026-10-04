@@ -12,7 +12,7 @@ import { discounted } from "@/lib/promo";
 import { IS_SANDBOX } from "@/lib/slickpay";
 import { formatPrice } from "@/lib/types";
 
-export const metadata: Metadata = { title: "Cart" };
+export const metadata: Metadata = { title: "Cart", robots: { index: false } };
 export const dynamic = "force-dynamic";
 
 const promoErrors: Record<string, string> = {
@@ -133,6 +133,18 @@ export default async function CartPage({
               <span className="eyebrow">Summary</span>
             </div>
             <div className="flex flex-col gap-4 p-5 sm:p-6">
+              {!promo && promoCode && (
+                <div className="notice notice-grey justify-between">
+                  <span className="text-[13px]">
+                    <strong>{promoCode}</strong> can&apos;t be used on this order.
+                  </span>
+                  <form action={removePromo}>
+                    <button type="submit" className="text-[13px] font-medium underline">
+                      Remove
+                    </button>
+                  </form>
+                </div>
+              )}
               {promo ? (
                 <div className="notice notice-green justify-between">
                   <span className="flex items-center gap-2">
@@ -147,7 +159,7 @@ export default async function CartPage({
                     </button>
                   </form>
                 </div>
-              ) : (
+              ) : promoCode ? null : (
                 <form action={applyPromo} className="flex flex-col gap-1.5">
                   <label htmlFor="promo" className="text-[13px] font-medium text-muted">
                     Promo code

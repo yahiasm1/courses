@@ -1,10 +1,13 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { confirmPurchase } from "@/lib/purchases";
 import { getUser } from "@/lib/data";
 import { createClient } from "@/lib/supabase/server";
 import { AutoRefresh } from "@/components/auto-refresh";
 import { Icon } from "@/components/icons";
+import { PruneCart } from "@/components/prune-cart";
 
+export const metadata: Metadata = { title: "Payment", robots: { index: false } };
 export const dynamic = "force-dynamic";
 
 export default async function CheckoutReturnPage({
@@ -43,6 +46,7 @@ export default async function CheckoutReturnPage({
           ? "Your course is ready in My courses."
           : "If you completed the payment, it can take a minute to confirm. Refresh this page or check My courses."}
       </p>
+      {paid && <PruneCart />}
       {!paid && status !== null && <AutoRefresh />}
       {!paid && (
         <div className="notice notice-grey mb-[18px] justify-center">

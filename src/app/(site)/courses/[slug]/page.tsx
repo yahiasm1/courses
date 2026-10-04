@@ -21,8 +21,18 @@ type Props = {
 };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const course = await getCourse((await params).slug);
-  return { title: course?.name ?? "Course", description: course?.description ?? undefined };
+  const { slug } = await params;
+  const course = await getCourse(slug);
+  if (!course) return { title: "Course" };
+  const description = course.description?.replace(/\s+/g, " ").slice(0, 160) || undefined;
+  const images = course.image_url ? [course.image_url] : undefined;
+  return {
+    title: course.name,
+    description,
+    alternates: { canonical: `/courses/${course.slug}` },
+    openGraph: { title: course.name, description, images, type: "website" },
+    twitter: { card: images ? "summary_large_image" : "summary", title: course.name, description, images },
+  };
 }
 
 export default async function CoursePage({ params, searchParams }: Props) {
@@ -75,7 +85,7 @@ export default async function CoursePage({ params, searchParams }: Props) {
                   </span>
                 )}
               </div>
-              <h1 className="h2 display">{course.name}</h1>
+              <h1 className="h2 display break-words">{course.name}</h1>
               <div className="mt-3 flex items-baseline gap-2">
                 <span className="price-xl display">
                   {formatPrice(course.price)}

@@ -17,7 +17,7 @@ type PurchaseRow = {
  *
  * `invoiceHint` (the invoice_id SlickPay appends to the return URL, or the one in
  * a webhook) is only used when we never stored an invoice id for this purchase,
- * and only if its amount matches and no other purchase already claimed it.
+ * and only if SlickPay echoes this purchase's id and no other purchase claimed it.
  */
 export async function confirmPurchase(purchaseId: string, invoiceHint?: string | null) {
   const admin = createAdminClient();
@@ -38,8 +38,8 @@ export async function confirmPurchase(purchaseId: string, invoiceHint?: string |
   if (!invoice.paid) return purchase.status;
 
   if (!purchase.slickpay_invoice_id) {
-    if (invoice.purchaseId && invoice.purchaseId !== purchase.id) return purchase.status;
-    if (invoice.amount !== undefined && invoice.amount !== Number(purchase.amount)) return purchase.status;
+    // Only accept an invoice we didn't record if SlickPay confirms it belongs to this purchase.
+    if (invoice.purchaseId !== purchase.id) return purchase.status;
     const { count } = await admin
       .from("purchases")
       .select("id", { count: "exact", head: true })

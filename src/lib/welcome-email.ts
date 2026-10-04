@@ -71,7 +71,8 @@ export async function sendWelcomeEmailOnce(user: User | null) {
     if (Date.now() - new Date(user.created_at).getTime() > MAX_ACCOUNT_AGE_MS) return;
 
     const firstName = (user.user_metadata?.first_name as string | undefined)?.trim() || null;
-    await sendEmail({ to: user.email, ...welcomeEmail(firstName, SITE_URL) });
+    const sent = await sendEmail({ to: user.email, ...welcomeEmail(firstName, SITE_URL) });
+    if (!sent) return; // not configured yet: try again on a later sign-in
     await createAdminClient().auth.admin.updateUserById(user.id, {
       app_metadata: { ...user.app_metadata, welcome_email_sent_at: new Date().toISOString() },
     });

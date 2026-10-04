@@ -11,6 +11,8 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: { default: `${SITE_NAME} — Online courses`, template: `%s · ${SITE_NAME}` },
   description: "Browse all courses, pay securely with CIB or Edahabia, download instantly.",
+  openGraph: { siteName: SITE_NAME, type: "website", images: ["/brand/icon-512.png"] },
+  twitter: { card: "summary" },
 };
 
 /* Applies a remembered theme before first paint so there is no flash. */

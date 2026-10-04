@@ -16,7 +16,7 @@
   --border-strong: #ffffff1f;
   --text: #f4f2ff;
   --text-soft: #9d99b5;
-  --text-muted: #6f6b86;
+  --text-muted: #8a86a3;
   --accent: var(--color-brand-500);
   --accent-2: var(--color-brand-600);
   --accent-readable: var(--color-brand-300);
@@ -1053,4 +1053,13 @@ header:has(> .whatsapp-banner) {
 }
 .whatsapp-banner.telegram .whatsapp-text span {
   color: #b9cbd8;
+}
+
+/* Visible keyboard focus for every interactive element (WCAG 2.4.7). */
+a:focus-visible,
+button:focus-visible,
+select:focus-visible,
+summary:focus-visible {
+  outline: 2px solid var(--accent-readable);
+  outline-offset: 2px;
 }

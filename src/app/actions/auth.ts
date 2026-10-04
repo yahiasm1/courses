@@ -7,7 +7,8 @@ import { sendWelcomeEmailOnce } from "@/lib/welcome-email";
 
 function safeNext(value: FormDataEntryValue | null) {
   const next = String(value ?? "/");
-  return next.startsWith("/") && !next.startsWith("//") ? next : "/";
+  // Same-site paths only: reject "//host", "/\\host" and control characters.
+  return /^\/(?![\/\\])[^\\\s]*$/.test(next) ? next : "/";
 }
 
 export type AuthState = { error?: string; message?: string } | undefined;

@@ -215,7 +215,7 @@ export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
                     <div className="hidden flex-wrap gap-2 lg:flex">
                       {s.chips.map((c, ci) => (
                         <span
-                          key={c}
+                          key={`${ci}-${c}`}
                           title={c}
                           className={`max-w-[290px] truncate rounded-[5px] border px-[13px] py-[7px] text-[0.78rem] ${
                             ci === s.highlightChip ? "font-semibold" : "font-medium"

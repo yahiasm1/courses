@@ -7,7 +7,11 @@ import { CategoryChips } from "@/components/category-chips";
 import { Icon } from "@/components/icons";
 import { Pagination } from "@/components/pagination";
 
-export const metadata: Metadata = { title: "All courses" };
+export const metadata: Metadata = {
+  title: "All courses",
+  description: "Browse every course on Courses DZ. Pay in DA with CIB or Edahabia and download instantly.",
+  alternates: { canonical: "/shop" },
+};
 export const dynamic = "force-dynamic";
 
 const sorts: { value: CourseSort; label: string }[] = [

@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient, createClient } from "@/lib/supabase/server";
 import { Container } from "@/components/container";
 import { CourseCover } from "@/components/course-cover";
 import { Icon } from "@/components/icons";
 
-export const metadata: Metadata = { title: "My courses" };
+export const metadata: Metadata = { title: "My courses", robots: { index: false } };
 export const dynamic = "force-dynamic";
 
 type Row = {
@@ -22,13 +22,20 @@ export default async function LibraryPage() {
   } = await supabase.auth.getUser();
   if (!user) redirect("/login?next=/library");
 
-  const { data } = await supabase
+  // Admin client (scoped to this user): courses bought before being unpublished must stay
+  // visible, which the public "published courses only" policy would hide.
+  const { data, error } = await createAdminClient()
     .from("purchases")
     .select("id, paid_at, course:courses(id, name, slug, image_url)")
     .eq("user_id", user.id)
     .eq("status", "paid")
     .order("paid_at", { ascending: false });
-  const rows = ((data ?? []) as unknown as Row[]).filter((r) => r.course);
+  if (error) throw error;
+  // One row per course, even if it was paid twice.
+  const seen = new Set<string>();
+  const rows = ((data ?? []) as unknown as Row[]).filter(
+    (r) => r.course && !seen.has(r.course.id) && seen.add(r.course.id),
+  );
 
   return (
     <Container className="flex flex-col gap-4">

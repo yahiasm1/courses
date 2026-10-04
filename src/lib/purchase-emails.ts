@@ -27,7 +27,7 @@ export async function sendPurchaseEmails(p: PaidOrder) {
     ["Invoice", `#${esc(p.invoiceId)}`],
   ];
   const plainItems = p.items.map((i) => `- ${i.name}: ${formatPrice(i.amount)}`).join("\n");
-  const jobs: Promise<void>[] = [];
+  const jobs: Promise<boolean>[] = [];
 
   if (p.buyerEmail) {
     jobs.push(
