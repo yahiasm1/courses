@@ -209,6 +209,7 @@ export const ar: Dict = {
     firstName: "الاسم",
     lastName: "اللقب",
     phone: "رقم الهاتف",
+    optional: "اختياري",
     email: "البريد الإلكتروني",
     password: "كلمة المرور",
     passwordHint: "6 أحرف على الأقل",

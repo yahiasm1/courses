@@ -50,7 +50,7 @@ export async function signup(_: AuthState, formData: FormData): Promise<AuthStat
       data: {
         first_name: String(formData.get("first_name") ?? ""),
         last_name: String(formData.get("last_name") ?? ""),
-        phone: String(formData.get("phone") ?? ""),
+        phone: String(formData.get("phone") ?? "").trim(),
         locale: (await getDict()).locale,
       },
     },

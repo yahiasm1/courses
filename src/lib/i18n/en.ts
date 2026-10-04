@@ -201,6 +201,7 @@ export const en = {
     firstName: "First name",
     lastName: "Last name",
     phone: "Phone",
+    optional: "optional",
     email: "Email",
     password: "Password",
     passwordHint: "At least 6 characters",
