@@ -1,8 +1,13 @@
 import type { Metadata } from "next";
 import { Alexandria, Geist_Mono, Rubik } from "next/font/google";
 import { I18nProvider } from "@/components/i18n-provider";
+import { MetaPixel } from "@/components/meta-pixel";
 import { getDict } from "@/lib/i18n/server";
-import { SITE_NAME, SITE_URL } from "@/lib/site";
+import { META_PIXEL_ID, SITE_NAME, SITE_URL } from "@/lib/site";
+
+/** Track real visitors only: not local development or Vercel preview deployments. */
+const PIXEL_ENABLED =
+  Boolean(META_PIXEL_ID) && process.env.NODE_ENV === "production" && process.env.VERCEL_ENV !== "preview";
 import "./globals.css";
 
 const rubik = Rubik({ subsets: ["latin", "arabic"], variable: "--font-rubik" });
@@ -42,6 +47,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
       </head>
       <body className="font-sans antialiased">
         <I18nProvider locale={locale}>{children}</I18nProvider>
+        {PIXEL_ENABLED && <MetaPixel pixelId={META_PIXEL_ID} />}
       </body>
     </html>
   );
