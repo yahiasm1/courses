@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { AutoRefresh } from "@/components/auto-refresh";
 import { Icon } from "@/components/icons";
 import { PruneCart } from "@/components/prune-cart";
+import { PixelOnView } from "@/components/pixel-events";
 import { getDict } from "@/lib/i18n/server";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -36,6 +37,30 @@ export default async function CheckoutReturnPage({
   }
 
   const paid = status === "paid";
+
+  // Order contents for the Meta Pixel Purchase event (every course on the same invoice).
+  let order: { ids: string[]; value: number } | null = null;
+  if (paid && purchase) {
+    const supabase = await createClient();
+    const { data: row } = await supabase
+      .from("purchases")
+      .select("slickpay_invoice_id")
+      .eq("id", purchase)
+      .maybeSingle();
+    const { data: rows } = row?.slickpay_invoice_id
+      ? await supabase
+          .from("purchases")
+          .select("course_id, amount")
+          .eq("slickpay_invoice_id", row.slickpay_invoice_id)
+          .eq("status", "paid")
+      : await supabase.from("purchases").select("course_id, amount").eq("id", purchase);
+    if (rows?.length) {
+      order = {
+        ids: rows.map((r) => r.course_id as string),
+        value: rows.reduce((sum, r) => sum + Number(r.amount), 0),
+      };
+    }
+  }
   const { t } = await getDict();
   const p = t.payment;
 
@@ -51,6 +76,19 @@ export default async function CheckoutReturnPage({
         {paid ? p.successText : p.pendingText}
       </p>
       {paid && <PruneCart />}
+      {order && (
+        <PixelOnView
+          event="Purchase"
+          onceKey={purchase}
+          params={{
+            content_ids: order.ids,
+            content_type: "product",
+            num_items: order.ids.length,
+            value: order.value,
+            currency: "DZD",
+          }}
+        />
+      )}
       {!paid && status !== null && <AutoRefresh />}
       {!paid && (
         <div className="notice notice-grey mb-[18px] justify-center">

@@ -10,6 +10,7 @@ import { getCartCourses, getCartIds, getPromoCode, ownedIds, validatePromo } fro
 import { getMyPhone, getUser } from "@/lib/data";
 import { normalizeDzPhone } from "@/lib/phone";
 import { PhoneField } from "@/components/phone-field";
+import { PixelOnSubmit } from "@/components/pixel-events";
 import { discounted } from "@/lib/promo";
 import { IS_SANDBOX } from "@/lib/slickpay";
 import { formatPrice } from "@/lib/i18n";
@@ -210,12 +211,23 @@ export default async function CartPage({
               </dl>
 
               {payable.length > 0 ? (
+                <PixelOnSubmit
+                  event="InitiateCheckout"
+                  params={{
+                    content_ids: payable.map((x) => x.id),
+                    content_type: "product",
+                    num_items: payable.length,
+                    value: total,
+                    currency: "DZD",
+                  }}
+                >
                 <form action={checkoutCart} className="flex flex-col gap-3">
                   {needsPhone && <PhoneField />}
                   <SubmitButton pendingLabel={t.course.redirecting}>
                     {user ? c.checkout(price(total)) : c.signInToCheckout}
                   </SubmitButton>
                 </form>
+                </PixelOnSubmit>
               ) : (
                 <button type="button" disabled className="btn btn-primary btn-lg w-full opacity-60">
                   {c.nothingToPay}

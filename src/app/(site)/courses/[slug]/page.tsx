@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { getCourse, getMyPhone, getUser } from "@/lib/data";
 import { normalizeDzPhone } from "@/lib/phone";
 import { PhoneField } from "@/components/phone-field";
+import { PixelOnSubmit, PixelOnView } from "@/components/pixel-events";
 import { hasPurchased } from "@/lib/purchases";
 import { formatPrice } from "@/lib/i18n";
 import { getDict } from "@/lib/i18n/server";
@@ -52,9 +53,18 @@ export default async function CoursePage({ params, searchParams }: Props) {
   ]);
   const needsPhone = Boolean(user) && !normalizeDzPhone(phone);
   const inCart = cart.includes(course.id);
+  // Meta Pixel product data (prices in DZD).
+  const pixelProduct = {
+    content_ids: [course.id],
+    content_name: course.name,
+    content_type: "product",
+    value: Number(course.price),
+    currency: "DZD",
+  };
 
   return (
     <Container className="flex flex-col gap-4">
+      <PixelOnView event="ViewContent" params={pixelProduct} />
       <nav className="flex items-center gap-1.5 text-[13.5px] text-muted">
         <Link href="/" className="hover:text-ink">
           {c.breadcrumb}
@@ -136,6 +146,7 @@ export default async function CoursePage({ params, searchParams }: Props) {
                     {c.notYet}
                   </button>
                 ) : (
+                  <PixelOnSubmit event="InitiateCheckout" params={{ ...pixelProduct, num_items: 1 }}>
                   <form action={buyCourse} className="flex flex-col gap-2.5">
                     <input type="hidden" name="courseId" value={course.id} />
                     <input type="hidden" name="slug" value={course.slug} />
@@ -144,6 +155,7 @@ export default async function CoursePage({ params, searchParams }: Props) {
                       {user ? c.buyNow(formatPrice(course.price, locale)) : c.signInToBuy}
                     </SubmitButton>
                   </form>
+                  </PixelOnSubmit>
                 )}
                 {!owned && Number(course.price) > 0 &&
                   (inCart ? (
@@ -152,13 +164,15 @@ export default async function CoursePage({ params, searchParams }: Props) {
                       {c.inCart}
                     </Link>
                   ) : (
-                    <form action={addToCart}>
-                      <input type="hidden" name="courseId" value={course.id} />
-                      <SubmitButton pendingLabel={c.adding} variant="secondary">
-                        <Icon name="cart" size={17} />
-                        {c.addToCart}
-                      </SubmitButton>
-                    </form>
+                    <PixelOnSubmit event="AddToCart" params={pixelProduct}>
+                      <form action={addToCart}>
+                        <input type="hidden" name="courseId" value={course.id} />
+                        <SubmitButton pendingLabel={c.adding} variant="secondary">
+                          <Icon name="cart" size={17} />
+                          {c.addToCart}
+                        </SubmitButton>
+                      </form>
+                    </PixelOnSubmit>
                   ))}
                 {course.sales_page_url && (
                   <a
