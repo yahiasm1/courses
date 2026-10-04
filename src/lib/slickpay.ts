@@ -29,16 +29,6 @@ function apiKey() {
   throw new Error("SlickPay: SLICKPAY_API_KEY is not set (required for the live API).");
 }
 
-/** A non-2xx answer from SlickPay, with its HTTP status. */
-export class SlickPayError extends Error {
-  readonly status: number;
-  constructor(message: string, status: number) {
-    super(message);
-    this.name = "SlickPayError";
-    this.status = status;
-  }
-}
-
 async function slickpay<T>(path: string, init: RequestInit = {}): Promise<T> {
   if (!BASE_URL) throw new Error("SlickPay: SLICKPAY_BASE_URL is not set (required in production).");
   const res = await fetch(`${BASE_URL}${path}`, {
@@ -69,7 +59,7 @@ async function slickpay<T>(path: string, init: RequestInit = {}): Promise<T> {
         ? " (check SLICKPAY_API_KEY: live keys don't work on the sandbox URL)"
         : " (check SLICKPAY_API_KEY: the sandbox test key doesn't work on the live URL)";
     }
-    throw new SlickPayError(`SlickPay ${res.status} ${init.method ?? "GET"} ${path}: ${message}`, res.status);
+    throw new Error(`SlickPay ${res.status} ${init.method ?? "GET"} ${path}: ${message}`);
   }
   return body as T;
 }
@@ -89,8 +79,7 @@ export type CreateInvoiceInput = {
 };
 
 export async function createInvoice(input: CreateInvoiceInput) {
-  // Only the documented contact fields + amount; extras are added on top.
-  const base: Record<string, unknown> = {
+  const payload: Record<string, unknown> = {
     amount: input.amount,
     url: input.returnUrl,
     firstname: input.firstname,
@@ -98,34 +87,19 @@ export async function createInvoice(input: CreateInvoiceInput) {
     email: input.email,
     phone: input.phone,
     address: input.address,
-    webhook_url: input.webhookUrl,
-  };
-  if (process.env.SLICKPAY_WEBHOOK_SECRET) base.webhook_signature = process.env.SLICKPAY_WEBHOOK_SECRET;
-  if (process.env.SLICKPAY_ACCOUNT_UUID) base.account = process.env.SLICKPAY_ACCOUNT_UUID;
-
-  const full = {
-    ...base,
     items: input.items.map((i) => ({ name: i.name, price: i.price, quantity: 1 })),
+    webhook_url: input.webhookUrl,
+    webhook_signature: process.env.SLICKPAY_WEBHOOK_SECRET,
     webhook_meta_data: input.metadata,
   };
-
-  const post = (payload: Record<string, unknown>) =>
-    slickpay<{ success: number; id: number | string; url: string }>("/users/invoices", {
-      method: "POST",
-      body: JSON.stringify(payload),
-    });
-
-  try {
-    return await post(full);
-  } catch (e) {
-    // SlickPay sometimes crashes (5xx) on optional fields. Retry once with just the
-    // documented required fields: confirmation still works through the stored invoice id.
-    if (!(e instanceof SlickPayError) || e.status < 500) throw e;
-    console.warn("[slickpay] invoice with items/metadata failed, retrying minimal:", e.message);
-    const invoice = await post(base);
-    console.warn("[slickpay] minimal invoice succeeded: SlickPay rejects items or webhook_meta_data");
-    return invoice;
+  if (process.env.SLICKPAY_ACCOUNT_UUID) {
+    payload.account = process.env.SLICKPAY_ACCOUNT_UUID;
   }
+
+  return slickpay<{ success: number; id: number | string; url: string }>("/users/invoices", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
 }
 
 export type InvoiceStatus = {
