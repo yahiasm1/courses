@@ -63,6 +63,17 @@ Deploy to Vercel (or any Node host) with the same environment variables. The sit
 - Emails: `src/lib/welcome-email.ts`, `src/lib/purchase-emails.ts`; Supabase auth emails: paste [`supabase/templates`](supabase/templates)
 - Colours, radii and shadows: design tokens at the top of `src/app/globals.css` (component classes such as `.card`, `.btn-primary`, `.pill` live further down)
 
+## Add a course (and announce it on Telegram)
+
+1. Copy `scripts/course.example.json` to e.g. `my-course.json` and fill it in
+   (`category` is a category name; `price` in DA; `download_url` is what buyers get).
+2. Preview: `npm run add-course -- my-course.json`
+3. Add it: `npm run add-course -- my-course.json --save`
+4. Add it and post to Telegram: `npm run add-course -- my-course.json --save --announce`
+
+Needs `NEXT_PUBLIC_SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` in `.env.local`, plus
+`TELEGRAM_BOT_TOKEN` / `TELEGRAM_CHAT_ID` for `--announce`.
+
 ## Launch checklist
 
 - **Vercel → Environment Variables** (Production): `SLICKPAY_BASE_URL=https://prodapi.slick-pay.com/api/v2`
